@@ -1,6 +1,3 @@
-"""
-This is the final version of the test code
-"""
 import argparse
 import datetime
 import sys
@@ -23,13 +20,13 @@ def warm_up(use_cuda=True):
         A = torch.randn(1000, 1000).to(device)
         for i in range(5):
             A @ A
-        print(f"Debug: warm-up matmul")
+        print("Warm-up matmul")
 
         ## redistribute warm-up
         A = PH.split(A).to(device)
         _A = PH.redistribute(A, dim0=1, dim1=0)
         A = PH.redistribute(_A, dim0=0, dim1=1)
-        print(f"Debug: warm-up redistribute")
+        print("Warm-up redistribute")
         del A, _A
     else:
         return
@@ -52,42 +49,51 @@ def make_atoms(cif_filename, supercell=[1, 1, 1], pbc=[True, True, True]):
 if __name__ == "__main__":
     # NOTE: 1. Parsing input arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--filepath", type=str, help="file path (cif or xyz)", required=True)
-    parser.add_argument("--supercell", type=int, nargs="+", required=True)
+    parser.add_argument(
+        "--filepath", type=str, help="file path (cif or xyz)", required=True
+    )
+    parser.add_argument(
+        "--supercell", type=int, nargs="+", default=[1, 1, 1], help="supercell"
+    )
     parser.add_argument(
         "--pbc",
         type=int,
         nargs="+",
-        help="periodic boundary condition of each axis. e.g., --pbc True True True",
+        help="periodic boundary condition of each axis. e.g., --pbc 0 0 1",
         required=True,
     )
     parser.add_argument("--pp_type", type=str, default="SG15")
+    parser.add_argument("--upf_files", type=str, nargs="+", default=None)
     parser.add_argument("--spacing", type=float, default=0.2, help="grid spacing (ang)")
-    # parser.add_argument("--precond_type", type=str, default="shift-and-invert")
-    # parser.add_argument("--pcg_precond_type", type=str, default=None, help="precond type for pcg")
-    # parser.add_argument("--alpha", type=float, default=0.1, help="precond option alpha")
-    # parser.add_argument("--rtol", type=float, default=0.1, help="precond option rtol")
-    # parser.add_argument("--no_shift_thr", type=float, default=10.0, help="precond option no_shift_thr")
-    parser.add_argument("--precond_iter", type=int, default=4, help="preconditioner's maxiter, default to 4")
-    parser.add_argument("--diag_iter", type=int, required=True, help="eigensolver's maxiter")
+    parser.add_argument(
+        "--precond_iter",
+        type=int,
+        default=4,
+        help="preconditioner's maxiter, default to 4",
+    )
+    parser.add_argument(
+        "--diag_iter", type=int, default=2, help="eigensolver's maxiter"
+    )
     parser.add_argument(
         "--use_cuda", type=int, default=1, help="whether using CUDA. 0=False, 1=True"
     )
+    parser.add_argument("--phase", type=str, default="fixed", choices=["scf", "fixed"])
     parser.add_argument(
-        "--phase", type=str, default="scf", help="'scf' or 'fixed'"
-    )
-    parser.add_argument(
-        "--density_filename", type=str, default=None, help="charge density filename to save (or for initialization)"
+        "--density_filename",
+        type=str,
+        default=None,
+        help="charge density filename to save (or for initialization)",
     )
     parser.add_argument(
         "--guess_filename", type=str, default=None, help="guess eigpair filename"
     )
     parser.add_argument(
-        "--save_eig", type=int, default=0, help="whether to save eigenpairs. 0=False, 1=True"
+        "--save_eig",
+        type=int,
+        default=0,
+        help="whether to save eigenpairs. 0=False, 1=True",
     )
-    parser.add_argument(
-        "--nbands", type=int, default=None, help="nbands"
-    )
+    parser.add_argument("--nbands", type=int, default=None, help="nbands")
     parser.add_argument(
         "--retHistory", type=str, default=None, help="save residual history?"
     )
@@ -95,10 +101,16 @@ if __name__ == "__main__":
         "--seed", type=int, default=42, help="random seed for starting vectors"
     )
     parser.add_argument(
-        "--scf_energy_tol", type=float, default=0.0001, help="scf convergence energy tolerance"
+        "--scf_energy_tol",
+        type=float,
+        default=0.0001,
+        help="scf convergence energy tolerance",
     )
     parser.add_argument(
-        "--fixed_convg_tol", type=float, default=0.001, help="fixed Hamiltonian convergence residual norm tolerance"
+        "--fixed_convg_tol",
+        type=float,
+        default=0.001,
+        help="fixed Hamiltonian convergence residual norm tolerance",
     )
     parser.add_argument(
         "--use_dense_kinetic",
@@ -177,36 +189,30 @@ if __name__ == "__main__":
     else:
         torch.backends.cuda.matmul.allow_tf32 = False
 
-    # set options according to args.fp
-    if args.fp == "MP":
-        use_MP = torch.float32
-    else:
-        use_MP = None
-
     # NOTE: 2. Creating the system
     atoms = make_atoms(args.filepath, args.supercell, args.pbc)
     atoms.center()
     print(atoms)
 
-
     # NOTE: 3. Setting GOSPEL calculator
-
     # Set pseudopotential options
-    assert args.pp_type in ["SG15", "ONCV", "TM", "NNLP"]
-    pp_path = "../PP_files/"
-    if args.pp_type == "SG15":
-        pp_prefix = "_ONCV_PBE-1.2.upf"
-    elif args.pp_type == "ONCV":
-        pp_prefix = ".upf"
-    elif args.pp_type == "TM":
-        pp_prefix = ".pbe-n-nc.UPF"
-    elif args.pp_type == "NNLP":
-        pp_prefix = ".nnlp.UPF"
+    if args.upf_files is None:
+        assert args.pp_type in ["SG15", "ONCV", "TM", "NNLP"]
+        pp_path = f"./data/pseudopotentials/{args.pp_type}/"
+        if args.pp_type == "SG15":
+            pp_prefix = "_ONCV_PBE-1.2.upf"
+        elif args.pp_type == "ONCV":
+            pp_prefix = ".upf"
+        elif args.pp_type == "TM":
+            pp_prefix = ".pbe-n-nc.UPF"
+        elif args.pp_type == "NNLP":
+            pp_prefix = ".nnlp.UPF"
+        else:
+            raise NotImplementedError
+        symbols = set(atoms.get_chemical_symbols())
+        upf_files = [pp_path + symbol + pp_prefix for symbol in symbols]
     else:
-        raise NotImplementedError
-    symbols = set(atoms.get_chemical_symbols())
-    upf_files = [pp_path + symbol + pp_prefix for symbol in symbols]
-
+        upf_files = args.upf_files
 
     # Make eigensolver option
     eigensolver = {
@@ -214,8 +220,8 @@ if __name__ == "__main__":
         "maxiter": args.diag_iter,
         "locking": False,
         "fill_block": False,
-        'verbosity': 1,
-        'dynamic': args.dynamic,
+        "verbosity": 1,
+        "dynamic": args.dynamic,
     }
 
     # Make GOSPEL calculator
@@ -223,16 +229,13 @@ if __name__ == "__main__":
         mixing={"what": "potential"},
         print_energies=True,
         use_cuda=bool(args.use_cuda),
-        # use_dense_kinetic=False,
         use_dense_kinetic=args.use_dense_kinetic,
-        # precond_type=args.precond_type,
         precond_type=None,
         eigensolver=eigensolver,
         grid={"spacing": args.spacing},
         pp={
             "upf": upf_files,
             "filtering": True,
-            # "use_dense_proj": False,
             "use_dense_proj": args.use_dense_proj,
         },
         xc={"type": "gga_x_pbe + gga_c_pbe"},
@@ -261,18 +264,15 @@ if __name__ == "__main__":
             "inner_precond": "gapp",
             "max_iter": args.precond_iter,
             "fp": args.precond_fp,
-            "verbosityLevel": 0, # TEST:
+            "verbosityLevel": 0,  # TEST:
             # "verbosityLevel": 1, # TEST:
             "locking": False,
         },
     }
     calc.eigensolver.preconditioner = create_preconditioner(**precond_options)
-    print(f"Debug: calc.eigensolver.preconditioner={calc.eigensolver.preconditioner}")
-
 
     # NOTE: warm-up
     warm_up(args.use_cuda)
-
 
     # NOTE: SCF calculation
     if args.phase == "scf":
@@ -280,10 +280,12 @@ if __name__ == "__main__":
 
         # Save the converged density
         if args.density_filename is not None:
-            torch.save(calc.get_density(spin=slice(0, sys.maxsize)), args.density_filename)
+            torch.save(
+                calc.get_density(spin=slice(0, sys.maxsize)), args.density_filename
+            )
             print(f"charge density file '{args.density_filename}' is saved.")
-    # NOTE: Fixed Hamiltonian diagonalization
     elif args.phase == "fixed":
+        # NOTE: Fixed Hamiltonian diagonalization
         from gospel.Hamiltonian import Hamiltonian
         from gospel.Eigensolver.ParallelDavidson import davidson
 
@@ -293,7 +295,7 @@ if __name__ == "__main__":
             density = torch.load(args.density_filename)
             density = density.reshape(1, -1).to(device)
         else:
-            print(f"Debug: initialize density !!!!")
+            print("Initializing the density...")
             density = calc.density.init_density()
         calc.density.set_density(density)
 
@@ -312,20 +314,25 @@ if __name__ == "__main__":
         calc.hamiltonian.update(calc.density)
         del density, calc.density, calc.kpoint, calc.poisson_solver, calc.xc_functional
 
-
         # Initialize eigenpair guess
         if args.guess_filename:
-            val, vec = torch.load(args.guess_filename)  # val.shape=(nbands,), vec.shape=(ngpts, nbands)
+            val, vec = torch.load(
+                args.guess_filename
+            )  # val.shape=(nbands,), vec.shape=(ngpts, nbands)
             vec = np.array([[vec.T]], dtype=object)
             eigpair = (val, vec)
-            calc.eigensolver.set_initial_eigenpair(eigpair, use_cuda=args.use_cuda, orthonormalize=True)
+            calc.eigensolver.set_initial_eigenpair(
+                eigpair, use_cuda=args.use_cuda, orthonormalize=True
+            )
             del eigpair
         else:
             calc.eigensolver._initialize_guess(calc.hamiltonian)
-        print(f"Debug: calc.eigensolver={calc.eigensolver}")
 
+        # NOTE: Set the floating point type
         if args.fp == "SP":
-            calc.eigensolver._starting_vector[0, 0] = calc.eigensolver._starting_vector[0, 0].to(torch.float32)
+            calc.eigensolver._starting_vector[0, 0] = calc.eigensolver._starting_vector[
+                0, 0
+            ].to(torch.float32)
 
         # Diagonalization
         results = davidson(
@@ -342,12 +349,11 @@ if __name__ == "__main__":
             retHistory=(args.retHistory is not None),
             skip_init_ortho=False,
             timing=True,
-            use_MP=use_MP,
+            use_MP=(args.fp == "MP"),
             MP_scheme=args.MP_scheme,
             debug_recalc_convg_history=args.recalc_convg_history,
         )
         del calc
-
 
         # NOTE: Save residual history
         if args.retHistory is not None:
