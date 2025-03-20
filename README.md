@@ -66,6 +66,6 @@ You can generate simple test systems such as a carbon nanotube (CNT).
 ```bash
 cd ./system_generation
 # example) generation of CNT (6, 0)
-python make_CNT.py -mn 6 0 --save ../data/systems/CNT_6.0.cif
+python make_nanotube.py --mn 6 0 --save ../data/systems/CNT_6.0.cif
 ```
 For more details on building structures, refer to [ASE Build](https://wiki.fysik.dtu.dk/ase/ase/build/build.html).
