@@ -26,9 +26,10 @@ python setup.py develop
 
 # Install pylibxc (for XC functionals)
 git clone https://gitlab.com/libxc/libxc.git
-git checkout 6.0.0  # Switch to 6.0.0 tag
 cd libxc
-python setup.py develop
+git checkout 6.0.0  # Switch to 6.0.0 tag
+conda install -c conda-forge cmake  # Run this if cmake is not installed
+python setup.py develop  # or: pip install -e .
 
 # If pylibxc import fails:
 # You may need to add libxc.so* to your library path.
