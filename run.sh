@@ -71,7 +71,7 @@ for cell in "${supercells[@]}"; do
 
     # Store the command to be executed in a single string variable
     cmd="python test.py --supercell $cell --pbc 0 0 1 \
-      --filepath ../system_cif/CNT_6.0.cif \
+      --filepath ./data/systems/CNT_6.0.cif \
       --phase fixed --pp_type SG15 --fixed_convg_tol $fixed_convg_tol \
       --precond_iter $precond_iter --diag_iter $diag_iter \
       --use_dense_proj --use_cuda $use_cuda \
