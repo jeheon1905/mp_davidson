@@ -20,6 +20,8 @@ pip install gitpython         # Git interface for Python
 pip install "spglib>=1.16.1"  # Symmetry analysis library
 
 # Install GOSPEL (local development mode)
+git clone https://gitlab.com/jhwoo15/gospel.git
+cd gospel
 python setup.py develop
 
 # Install pylibxc (for XC functionals)
