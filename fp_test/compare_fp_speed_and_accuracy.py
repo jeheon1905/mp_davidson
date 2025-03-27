@@ -182,19 +182,6 @@ def compare_accuracy_and_speed(
     sparsity=0.9,
     operation="matmul",
 ):
-    """
-    FP64, FP32, FP16, TF32 연산의 속도와 정확도를 비교합니다.
-
-    dense_mode일 때:
-      1. FP64 dense 행렬 A_t64를 생성한 후,
-      2. ref_result = A_t64.T @ A_t64 (dense‑dense 곱셈)을 구합니다.
-      3. 각 낮은 정밀도에 대해 연산 수행 시간과 FP64 대비 상대 오차를 계산합니다.
-
-    sparse_mode일 때:
-      1. dense 행렬 A_dense (shape: N x M)와 sparse 행렬 A_sparse (shape: N x N)를 각각 생성한 후,
-      2. ref_result = A_sparse_torch @ A_t64_dense (sparse‑dense 곱셈)을 구합니다.
-      3. 각 정밀도별로 두 행렬을 해당 dtype으로 변환하여 연산 후 상대 오차를 계산합니다.
-    """
     if not sparse_mode:
         if operation == "matmul":
             benchmark_dense_matmul(N, M, K, num_iter, device, allow_tf32_flag, scale)
@@ -312,6 +299,7 @@ def benchmark_sparse_matmul(
     for dt in dtypes_to_test:
         t, err = results[dt]
         print(f"{dt.upper():>5} | Time: {t:.4f} s | Rel. Error vs FP64: {err:.3e}")
+    print("\n\n")
 
     if device == "cuda":
         torch.backends.cuda.matmul.allow_tf32 = original_tf32
@@ -385,6 +373,7 @@ def benchmark_dense_matmul(N, M, K, num_iter, device, allow_tf32_flag, scale):
     for dt in dtypes:
         t, err = results[dt]
         print(f"{dt.upper():>5} | Time: {t:.4f} s | Rel. Error vs FP64: {err:.3e}")
+    print("\n\n")
 
     if device == "cuda":
         torch.backends.cuda.matmul.allow_tf32 = original_tf32
@@ -476,6 +465,7 @@ def benchmark_dense_tensordot(N, M, K, batch, num_iter, device, allow_tf32_flag,
     for dt in dtypes:
         t, err = results[dt]
         print(f"{dt.upper()}: Time: {t:.4f} s, Relative Error: {err:.3e}")
+    print("\n\n")
 
     if device == "cuda":
         torch.backends.cuda.matmul.allow_tf32 = original_tf32

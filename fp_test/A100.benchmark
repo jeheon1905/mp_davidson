@@ -1,0 +1,110 @@
+args=Namespace(N=10000, M=10000, K=10000, batch=300, num_iter=10, device='cuda', omp=1, allow_tf32=True, seed=42, scale=1.0, sparse=False, sparsity=0.9, operation='matmul')
+Number of GPUs detected: 1
+GPU 0: NVIDIA A100 80GB PCIe
+Number of iterations: 10
+Device: cuda
+allow_tf32_flag=True
+Using OMP_NUM_THREADS=1
+Using dense-dense multiplication: (10000, 10000) x (10000, 10000)
+Running dense-dense matmul test.
+Reference (FP64) matmul computed.
+
+==== Summary (Dense-Dense matmul benchmark) ====
+ FP64 | Time: 1.2185 s | Rel. Error vs FP64: 0.000e+00
+ FP32 | Time: 1.1066 s | Rel. Error vs FP64: 8.963e-07
+ FP16 | Time: 0.0928 s | Rel. Error vs FP64: 3.596e-04
+ TF32 | Time: 0.1811 s | Rel. Error vs FP64: 2.954e-04
+
+
+args=Namespace(N=5000, M=5000, K=5000, batch=300, num_iter=10, device='cuda', omp=1, allow_tf32=True, seed=42, scale=1.0, sparse=False, sparsity=0.9, operation='matmul')
+Number of GPUs detected: 1
+GPU 0: NVIDIA A100 80GB PCIe
+Number of iterations: 10
+Device: cuda
+allow_tf32_flag=True
+Using OMP_NUM_THREADS=1
+Using dense-dense multiplication: (5000, 5000) x (5000, 5000)
+Running dense-dense matmul test.
+Reference (FP64) matmul computed.
+
+==== Summary (Dense-Dense matmul benchmark) ====
+ FP64 | Time: 0.1542 s | Rel. Error vs FP64: 0.000e+00
+ FP32 | Time: 0.1410 s | Rel. Error vs FP64: 1.267e-06
+ FP16 | Time: 0.0127 s | Rel. Error vs FP64: 3.599e-04
+ TF32 | Time: 0.0234 s | Rel. Error vs FP64: 2.942e-04
+
+
+args=Namespace(N=1000, M=1000, K=1000, batch=300, num_iter=10, device='cuda', omp=1, allow_tf32=True, seed=42, scale=1.0, sparse=False, sparsity=0.9, operation='matmul')
+Number of GPUs detected: 1
+GPU 0: NVIDIA A100 80GB PCIe
+Number of iterations: 10
+Device: cuda
+allow_tf32_flag=True
+Using OMP_NUM_THREADS=1
+Using dense-dense multiplication: (1000, 1000) x (1000, 1000)
+Running dense-dense matmul test.
+Reference (FP64) matmul computed.
+
+==== Summary (Dense-Dense matmul benchmark) ====
+ FP64 | Time: 0.0014 s | Rel. Error vs FP64: 0.000e+00
+ FP32 | Time: 0.0013 s | Rel. Error vs FP64: 2.601e-07
+ FP16 | Time: 0.0003 s | Rel. Error vs FP64: 3.598e-04
+ TF32 | Time: 0.0003 s | Rel. Error vs FP64: 2.941e-04
+
+
+args=Namespace(N=100, M=100, K=100, batch=100, num_iter=10, device='cuda', omp=1, allow_tf32=True, seed=42, scale=1.0, sparse=False, sparsity=0.9, operation='tensordot')
+Number of GPUs detected: 1
+GPU 0: NVIDIA A100 80GB PCIe
+Number of iterations: 10
+Device: cuda
+allow_tf32_flag=True
+Using OMP_NUM_THREADS=1
+Running custom tensordot (my_tensordot) test.
+tensordot shape: (100, 100, 100, 100) x (100, 100) x (100, 100) x (100, 100)
+Reference (FP64) my_tensordot computed.
+
+==== Summary (tensordot benchmark) ====
+FP64: Time: 0.0593 s, Relative Error: 0.000e+00
+FP32: Time: 0.0480 s, Relative Error: 3.153e-07
+FP16: Time: 0.0139 s, Relative Error: 5.497e-04
+TF32: Time: 0.0166 s, Relative Error: 5.091e-04
+
+
+args=Namespace(N=100, M=100, K=100, batch=300, num_iter=10, device='cuda', omp=1, allow_tf32=True, seed=42, scale=1.0, sparse=False, sparsity=0.9, operation='tensordot')
+Number of GPUs detected: 1
+GPU 0: NVIDIA A100 80GB PCIe
+Number of iterations: 10
+Device: cuda
+allow_tf32_flag=True
+Using OMP_NUM_THREADS=1
+Running custom tensordot (my_tensordot) test.
+tensordot shape: (100, 100, 100, 300) x (100, 100) x (100, 100) x (100, 100)
+Reference (FP64) my_tensordot computed.
+
+==== Summary (tensordot benchmark) ====
+FP64: Time: 0.1869 s, Relative Error: 0.000e+00
+FP32: Time: 0.1373 s, Relative Error: 3.170e-07
+FP16: Time: 0.0416 s, Relative Error: 5.489e-04
+TF32: Time: 0.0496 s, Relative Error: 5.081e-04
+
+
+
+args=Namespace(N=50, M=50, K=150, batch=300, num_iter=10, device='cuda', omp=1, allow_tf32=True, seed=42, scale=1.0, sparse=False, sparsity=0.9, operation='tensordot')
+Number of GPUs detected: 1
+GPU 0: NVIDIA A100 80GB PCIe
+Number of iterations: 10
+Device: cuda
+allow_tf32_flag=True
+Using OMP_NUM_THREADS=1
+Running custom tensordot (my_tensordot) test.
+tensordot shape: (50, 50, 150, 300) x (50, 50) x (50, 50) x (150, 150)
+Reference (FP64) my_tensordot computed.
+
+==== Summary (tensordot benchmark) ====
+FP64: Time: 0.0689 s, Relative Error: 0.000e+00
+FP32: Time: 0.0435 s, Relative Error: 2.875e-07
+FP16: Time: 0.0196 s, Relative Error: 5.483e-04
+TF32: Time: 0.0331 s, Relative Error: 2.916e-04
+
+
+
