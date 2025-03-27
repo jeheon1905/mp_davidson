@@ -186,6 +186,9 @@ if __name__ == "__main__":
 
     if args.allow_tf32:
         torch.backends.cuda.matmul.allow_tf32 = True
+        print("allow_tf32=True -> use_dense_kinetic and use_dense_proj are set to True!")
+        args.use_dense_kinetic = True
+        args.use_dense_proj = True
     else:
         torch.backends.cuda.matmul.allow_tf32 = False
 

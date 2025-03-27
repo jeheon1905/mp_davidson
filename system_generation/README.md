@@ -13,10 +13,10 @@
 ### Nanotube Example
 ```bash
 # Generate CNT (6, 0)
-python make_nanotube.py --nm 6 0 --save ../data/systems/CNT_6.0.cif
+python make_nanotube.py --nm 6 0 --save ../data/systems/CNT_6_0.cif
 
 # Generate SiNT (6, 0)
-python make_nanotube.py --nm 6 0 --symbol Si --bond 2.24 --save ../data/systems/SiNT_6.0.cif
+python make_nanotube.py --nm 6 0 --symbol Si --bond 2.24 --save ../data/systems/SiNT_6_0.cif
 ```
 
 ### Bulk Example

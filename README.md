@@ -44,7 +44,7 @@ This test computes the eigenvalues of a fixed Hamiltonian using an iterative sol
 
 ```bash
 # Diagonalization of a fixed Hamiltonian
-python test.py --filepath ./data/systems/CNT_6.0.cif --pbc 0 0 1 \
+python test.py --filepath ./data/systems/CNT_6_0.cif --pbc 0 0 1 \
     --phase fixed --fixed_convg_tol 1e-3 --diag_iter 100 \
     --use_cuda 1 --retHistory History.pt
 
@@ -60,7 +60,7 @@ This test performs a full SCF (Self-Consistent Field) calculation.
 
 ```bash
 # SCF calculation
-python test.py --filepath ./data/systems/CNT_6.0.cif --pbc 0 0 1 \
+python test.py --filepath ./data/systems/CNT_6_0.cif --pbc 0 0 1 \
     --phase scf --use_cuda 1
 ```
 
@@ -69,6 +69,6 @@ You can generate simple test systems such as a carbon nanotube (CNT).
 ```bash
 cd ./system_generation
 # example) generation of CNT (6, 0)
-python make_nanotube.py --mn 6 0 --save ../data/systems/CNT_6.0.cif
+python make_nanotube.py --mn 6 0 --save ../data/systems/CNT_6_0.cif
 ```
 For more details on building structures, refer to [ASE Build](https://wiki.fysik.dtu.dk/ase/ase/build/build.html).
