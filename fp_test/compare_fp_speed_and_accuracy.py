@@ -79,8 +79,8 @@ def parse_arguments():
         "--operation",
         type=str,
         default="matmul",
-        choices=["matmul", "tensordot"],
-        help="Operation type for dense multiplication: 'matmul' or 'tensordot' (default: matmul)",
+        choices=["matmul", "tensordot", "matmul_transpose"],
+        help="Operation type for comparison (default: matmul).",
     )
     return parser.parse_args()
 
@@ -185,6 +185,10 @@ def compare_accuracy_and_speed(
     if not sparse_mode:
         if operation == "matmul":
             benchmark_dense_matmul(N, M, K, num_iter, device, allow_tf32_flag, scale)
+        elif operation == "matmul_transpose":
+            benchmark_dense_matmul(
+                N, M, K, num_iter, device, allow_tf32_flag, scale, transpose=True
+            )
         elif operation == "tensordot":
             benchmark_dense_tensordot(
                 N, M, K, batch, num_iter, device, allow_tf32_flag, scale
@@ -305,10 +309,18 @@ def benchmark_sparse_matmul(
         torch.backends.cuda.matmul.allow_tf32 = original_tf32
 
 
-def benchmark_dense_matmul(N, M, K, num_iter, device, allow_tf32_flag, scale):
+def benchmark_dense_matmul(
+    N, M, K, num_iter, device, allow_tf32_flag, scale, transpose=False
+):
     print(f"Using dense-dense multiplication: ({N}, {M}) x ({M}, {K})")
     print("Running dense-dense matmul test.")
-    A_t64 = torch.randn(N, M, dtype=torch.float64).to(device)
+
+    if transpose:
+        A_t64 = torch.randn(M, N, dtype=torch.float64).to(device)
+        A_t64 = A_t64.T
+    else:
+        A_t64 = torch.randn(N, M, dtype=torch.float64).to(device)
+
     B_t64 = torch.randn(M, K, dtype=torch.float64).to(device)
 
     with torch.no_grad():
