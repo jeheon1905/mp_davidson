@@ -72,6 +72,12 @@ if __name__ == "__main__":
         help="preconditioner's maxiter, default to 4",
     )
     parser.add_argument(
+        "--no_shift_thr",
+        type=float,
+        default=10.0,
+        help="Threshold for not shifting to states with large residues (defaut: 10.0).",
+    )
+    parser.add_argument(
         "--diag_iter", type=int, default=2, help="eigensolver's maxiter"
     )
     parser.add_argument(
@@ -132,7 +138,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--precond_fp",
         type=str,
-        choices=["DP", "SP"],
+        choices=["DP", "SP", "HP"],
         default="DP",
         help="floating point precision for preconditioner",
     )
@@ -150,6 +156,13 @@ if __name__ == "__main__":
         "--recalc_convg_history",
         action="store_true",
         help="whether to recalculate convergence history",
+    )
+    parser.add_argument(
+        "--MP_dtype",
+        type=str,
+        choices=["SP", "HP"],
+        default="SP",
+        help="mixed precision data type (default: SP)",
     )
     parser.add_argument(
         "--MP_scheme",
@@ -186,7 +199,9 @@ if __name__ == "__main__":
 
     if args.allow_tf32:
         torch.backends.cuda.matmul.allow_tf32 = True
-        print("allow_tf32=True -> use_dense_kinetic and use_dense_proj are set to True!")
+        print(
+            "'use_dense_kinetic' and 'use_dense_proj' are set to True because of 'allow_tf32=True'."
+        )
         args.use_dense_kinetic = True
         args.use_dense_proj = True
     else:
@@ -225,6 +240,9 @@ if __name__ == "__main__":
         "fill_block": False,
         "verbosity": 1,
         "dynamic": args.dynamic,
+        "use_MP": (args.fp == "MP"),
+        "MP_dtype": args.MP_dtype,
+        "MP_scheme": args.MP_scheme,
     }
 
     # Make GOSPEL calculator
@@ -267,9 +285,10 @@ if __name__ == "__main__":
             "inner_precond": "gapp",
             "max_iter": args.precond_iter,
             "fp": args.precond_fp,
-            "verbosityLevel": 0,  # TEST:
-            # "verbosityLevel": 1, # TEST:
+            # "verbosityLevel": 0,  # TEST:
+            "verbosityLevel": 1,  # TEST:
             "locking": False,
+            "no_shift_thr": args.no_shift_thr,
         },
     }
     calc.eigensolver.preconditioner = create_preconditioner(**precond_options)
@@ -348,11 +367,12 @@ if __name__ == "__main__":
             nblock=args.nblock,
             locking=args.locking,
             fill_block=args.fill_block,
-            verbosityLevel=1,
+            verbosity=1,
             retHistory=(args.retHistory is not None),
             skip_init_ortho=False,
             timing=True,
             use_MP=(args.fp == "MP"),
+            MP_dtype=args.MP_dtype,
             MP_scheme=args.MP_scheme,
             debug_recalc_convg_history=args.recalc_convg_history,
         )
