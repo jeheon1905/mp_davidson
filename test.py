@@ -1,35 +1,31 @@
 import argparse
+import builtins
+import contextlib
 import datetime
+import os
 import sys
-import time
 import torch
 import numpy as np
-from ase import Atoms
+
 from gospel import GOSPEL
 from gospel.ParallelHelper import ParallelHelper as PH
 from gospel.Eigensolver.precondition import create_preconditioner
+from gospel.util import Timer
+from mp_davidson.utils import get_git_commit
 
 
-def warm_up(use_cuda=True):
-    import os
-
-    if use_cuda:
-        device = PH.get_device(args.use_cuda)
-
-        ## matmul warm-up
-        A = torch.randn(1000, 1000).to(device)
-        for i in range(5):
-            A @ A
-        print("Warm-up matmul")
-
-        ## redistribute warm-up
-        A = PH.split(A).to(device)
-        _A = PH.redistribute(A, dim0=1, dim1=0)
-        A = PH.redistribute(_A, dim0=0, dim1=1)
-        print("Warm-up redistribute")
-        del A, _A
-    else:
-        return
+@contextlib.contextmanager
+def block_all_print():
+    original_print = builtins.print
+    original_stdout = sys.stdout
+    with open(os.devnull, "w") as fnull:
+        builtins.print = lambda *args, **kwargs: None
+        sys.stdout = fnull
+        try:
+            yield
+        finally:
+            builtins.print = original_print
+            sys.stdout = original_stdout
 
 
 def make_atoms(cif_filename, supercell=[1, 1, 1], pbc=[True, True, True]):
@@ -46,8 +42,199 @@ def make_atoms(cif_filename, supercell=[1, 1, 1], pbc=[True, True, True]):
     return atoms
 
 
+def main(args: argparse.Namespace) -> None:
+    # NOTE: Creating the system
+    atoms = make_atoms(args.filepath, args.supercell, args.pbc)
+    atoms.center()
+    print(atoms)
+
+    # NOTE: Setting GOSPEL calculator
+    # Set pseudopotential options
+    if args.upf_files is None:
+        assert args.pp_type in ["SG15", "ONCV", "TM", "NNLP"]
+        pp_path = f"./data/pseudopotentials/{args.pp_type}/"
+        if args.pp_type == "SG15":
+            pp_prefix = "_ONCV_PBE-1.2.upf"
+        elif args.pp_type == "ONCV":
+            pp_prefix = ".upf"
+        elif args.pp_type == "TM":
+            pp_prefix = ".pbe-n-nc.UPF"
+        elif args.pp_type == "NNLP":
+            pp_prefix = ".nnlp.UPF"
+        else:
+            raise NotImplementedError
+        symbols = set(atoms.get_chemical_symbols())
+        upf_files = [pp_path + symbol + pp_prefix for symbol in symbols]
+    else:
+        upf_files = args.upf_files
+
+    # Make eigensolver option
+    eigensolver = {
+        "type": "parallel_davidson",
+        "maxiter": args.diag_iter,
+        "locking": False,
+        "fill_block": False,
+        "verbosity": args.verbosity,
+        "dynamic": args.dynamic,
+        "use_MP": (args.fp == "MP"),
+        "MP_dtype": args.MP_dtype,
+        "MP_scheme": args.MP_scheme,
+    }
+
+    # Make GOSPEL calculator
+    calc = GOSPEL(
+        mixing={"what": "potential"},
+        print_energies=True,
+        use_cuda=bool(args.use_cuda),
+        use_dense_kinetic=args.use_dense_kinetic,
+        precond_type=None,
+        eigensolver=eigensolver,
+        grid={"spacing": args.spacing},
+        pp={
+            "upf": upf_files,
+            "filtering": True,
+            "use_dense_proj": args.use_dense_proj,
+        },
+        xc={"type": "gga_x_pbe + gga_c_pbe"},
+        convergence={
+            "scf_maxiter": 100,
+            "density_tol": np.inf,
+            "orbital_energy_tol": np.inf,
+            "energy_tol": args.scf_energy_tol,  # only check this for SCF convergence
+        },
+        occupation={
+            "smearing": "Fermi-Dirac",
+            "temperature": args.temperature,
+        },
+        nbands=args.nbands,
+    )
+    atoms.calc = calc
+    calc.initialize(atoms)
+
+    # NOTE: Make preconditioner
+    precond_options = {
+        "precond_type": "shift-and-invert",
+        "grid": calc.grid,
+        "use_cuda": args.use_cuda,
+        "options": {
+            "inner_precond": "gapp",
+            "max_iter": args.precond_iter,
+            "fp": args.precond_fp,
+            "verbosityLevel": args.verbosity,
+            "locking": False,
+            "no_shift_thr": args.no_shift_thr,
+        },
+    }
+    calc.eigensolver.preconditioner = create_preconditioner(**precond_options)
+
+    # NOTE: SCF calculation
+    if args.phase == "scf":
+        energy = atoms.get_potential_energy()
+
+        # Save the converged density
+        if args.density_filename is not None:
+            torch.save(
+                calc.get_density(spin=slice(0, sys.maxsize)), args.density_filename
+            )
+            print(f"charge density file '{args.density_filename}' is saved.")
+    elif args.phase == "fixed":
+        # NOTE: Fixed Hamiltonian diagonalization
+        from gospel.Hamiltonian import Hamiltonian
+        from gospel.Eigensolver.ParallelDavidson import davidson
+
+        # Initialize the electron density
+        if args.density_filename is not None:
+            device = PH.get_device(calc.parameters["use_cuda"])
+            density = torch.load(args.density_filename)
+            density = density.reshape(1, -1).to(device)
+        else:
+            print("Initializing the density...")
+            density = calc.density.init_density()
+        calc.density.set_density(density)
+
+        calc.hamiltonian = Hamiltonian(
+            calc.nspins,
+            calc.nbands,
+            calc.grid,
+            calc.kpoint,
+            calc.pp,
+            calc.poisson_solver,
+            calc.xc_functional,
+            calc.eigensolver,
+            use_dense_kinetic=calc.parameters["use_dense_kinetic"],
+            use_cuda=calc.parameters["use_cuda"],
+        )
+        calc.hamiltonian.update(calc.density)
+        del density, calc.density, calc.kpoint, calc.poisson_solver, calc.xc_functional
+
+        # Initialize eigenpair guess
+        if args.guess_filename:
+            val, vec = torch.load(
+                args.guess_filename
+            )  # val.shape=(nbands,), vec.shape=(ngpts, nbands)
+            vec = np.array([[vec.T]], dtype=object)
+            eigpair = (val, vec)
+            calc.eigensolver.set_initial_eigenpair(
+                eigpair, use_cuda=args.use_cuda, orthonormalize=True
+            )
+            del eigpair
+        else:
+            calc.eigensolver._initialize_guess(calc.hamiltonian)
+
+        # NOTE: Set the floating point type
+        if args.fp == "SP":
+            calc.eigensolver._starting_vector[0, 0] = calc.eigensolver._starting_vector[
+                0, 0
+            ].to(torch.float32)
+
+        # Reset initialization time records (only measure diagonalization times)
+        Timer.reset()
+
+        # Diagonalization
+        results = davidson(
+            A=calc.hamiltonian[0, 0],
+            X=calc.eigensolver._starting_vector[0, 0],
+            B=None,
+            preconditioner=calc.eigensolver.preconditioner,
+            tol=args.fixed_convg_tol,
+            maxiter=args.diag_iter,
+            nblock=args.nblock,
+            locking=args.locking,
+            fill_block=args.fill_block,
+            verbosity=args.verbosity,
+            retHistory=(args.retHistory is not None),
+            skip_init_ortho=False,
+            timing=True,
+            use_MP=(args.fp == "MP"),
+            MP_dtype=args.MP_dtype,
+            MP_scheme=args.MP_scheme,
+            debug_recalc_convg_history=args.recalc_convg_history,
+        )
+        del calc
+
+        # NOTE: Save residual history
+        if args.retHistory is not None:
+            eigval, eigvec, eigHistory, resHistory = results
+            print("Saving convergence history...")
+            torch.save((eigHistory, resHistory), args.retHistory)
+            print(f"{args.retHistory} is saved.")
+        else:
+            eigval, eigvec = results
+
+        if args.save_eig:
+            print("Saving eigpair...")
+            eigval = eigval.cpu()
+            eigvec = PH.merge(eigvec).cpu()
+            eigpairs = (eigval, eigvec)
+            filename = "eigpairs.pt"
+            torch.save(eigpairs, filename)
+            print(f"{filename} is saved.")
+    else:
+        raise NotImplementedError("Only support 'scf' or 'fixed'.")
+
+
 if __name__ == "__main__":
-    # NOTE: 1. Parsing input arguments
+    # NOTE: Parsing input arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--filepath", type=str, help="file path (cif or xyz)", required=True
@@ -64,7 +251,12 @@ if __name__ == "__main__":
     )
     parser.add_argument("--pp_type", type=str, default="SG15")
     parser.add_argument("--upf_files", type=str, nargs="+", default=None)
-    parser.add_argument("--spacing", type=float, default=0.2, help="grid spacing (ang)")
+    parser.add_argument(
+        "--spacing",
+        type=float,
+        default=0.15,
+        help="grid spacing (ang), default to 0.15",
+    )
     parser.add_argument(
         "--precond_iter",
         type=int,
@@ -107,10 +299,16 @@ if __name__ == "__main__":
         "--seed", type=int, default=42, help="random seed for starting vectors"
     )
     parser.add_argument(
+        "--temperature",
+        type=float,
+        default=1160.45,
+        help="temperature for smearing (default: 1160.45 K = 0.1 eV)",
+    )
+    parser.add_argument(
         "--scf_energy_tol",
         type=float,
         default=0.0001,
-        help="scf convergence energy tolerance",
+        help="scf convergence energy tolerance (Hartree / electron)",
     )
     parser.add_argument(
         "--fixed_convg_tol",
@@ -187,11 +385,25 @@ if __name__ == "__main__":
         action="store_true",
         help="whether to use fill_block option",
     )
+    parser.add_argument(
+        "--threads",
+        type=int,
+        default=None,
+    )
+    parser.add_argument(
+        "--verbosity",
+        type=int,
+        default=0,
+        help="verbosity level",
+    )
     args = parser.parse_args()
+    print(f"datetime: {datetime.datetime.now()}")
+    print(f"GOSPEL git commit: {get_git_commit('gospel')}")
+    print(f"mp_davidson git commit: {get_git_commit('mp_davidson')}")
     print("args=", args)
 
     torch.manual_seed(args.seed)
-    print(f"datetime: {datetime.datetime.now()}")
+    torch.set_num_threads(os.cpu_count() if args.threads is None else args.threads)
     if torch.cuda.is_available():
         print(f"Number of GPUs detected: {torch.cuda.device_count()}")
         for i in range(torch.cuda.device_count()):
@@ -207,193 +419,11 @@ if __name__ == "__main__":
     else:
         torch.backends.cuda.matmul.allow_tf32 = False
 
-    # NOTE: 2. Creating the system
-    atoms = make_atoms(args.filepath, args.supercell, args.pbc)
-    atoms.center()
-    print(atoms)
+    # Warm up
+    with block_all_print():
+        main(args)
+    print("Warm-up finished")
 
-    # NOTE: 3. Setting GOSPEL calculator
-    # Set pseudopotential options
-    if args.upf_files is None:
-        assert args.pp_type in ["SG15", "ONCV", "TM", "NNLP"]
-        pp_path = f"./data/pseudopotentials/{args.pp_type}/"
-        if args.pp_type == "SG15":
-            pp_prefix = "_ONCV_PBE-1.2.upf"
-        elif args.pp_type == "ONCV":
-            pp_prefix = ".upf"
-        elif args.pp_type == "TM":
-            pp_prefix = ".pbe-n-nc.UPF"
-        elif args.pp_type == "NNLP":
-            pp_prefix = ".nnlp.UPF"
-        else:
-            raise NotImplementedError
-        symbols = set(atoms.get_chemical_symbols())
-        upf_files = [pp_path + symbol + pp_prefix for symbol in symbols]
-    else:
-        upf_files = args.upf_files
-
-    # Make eigensolver option
-    eigensolver = {
-        "type": "parallel_davidson",
-        "maxiter": args.diag_iter,
-        "locking": False,
-        "fill_block": False,
-        "verbosity": 1,
-        "dynamic": args.dynamic,
-        "use_MP": (args.fp == "MP"),
-        "MP_dtype": args.MP_dtype,
-        "MP_scheme": args.MP_scheme,
-    }
-
-    # Make GOSPEL calculator
-    calc = GOSPEL(
-        mixing={"what": "potential"},
-        print_energies=True,
-        use_cuda=bool(args.use_cuda),
-        use_dense_kinetic=args.use_dense_kinetic,
-        precond_type=None,
-        eigensolver=eigensolver,
-        grid={"spacing": args.spacing},
-        pp={
-            "upf": upf_files,
-            "filtering": True,
-            "use_dense_proj": args.use_dense_proj,
-        },
-        xc={"type": "gga_x_pbe + gga_c_pbe"},
-        convergence={
-            "scf_maxiter": 100,
-            "density_tol": np.inf,
-            "orbital_energy_tol": np.inf,  # mHartree/electron
-            "energy_tol": args.scf_energy_tol,
-        },
-        occupation={
-            "smearing": "Fermi-Dirac",
-            # "temperature": 1160.45,
-            "temperature": 0.0,
-        },
-        nbands=args.nbands,
-    )
-    atoms.calc = calc
-    calc.initialize(atoms)
-
-    # NOTE: Make preconditioner
-    precond_options = {
-        "precond_type": "shift-and-invert",
-        "grid": calc.grid,
-        "use_cuda": args.use_cuda,
-        "options": {
-            "inner_precond": "gapp",
-            "max_iter": args.precond_iter,
-            "fp": args.precond_fp,
-            # "verbosityLevel": 0,  # TEST:
-            "verbosityLevel": 1,  # TEST:
-            "locking": False,
-            "no_shift_thr": args.no_shift_thr,
-        },
-    }
-    calc.eigensolver.preconditioner = create_preconditioner(**precond_options)
-
-    # NOTE: warm-up
-    warm_up(args.use_cuda)
-
-    # NOTE: SCF calculation
-    if args.phase == "scf":
-        energy = atoms.get_potential_energy()
-
-        # Save the converged density
-        if args.density_filename is not None:
-            torch.save(
-                calc.get_density(spin=slice(0, sys.maxsize)), args.density_filename
-            )
-            print(f"charge density file '{args.density_filename}' is saved.")
-    elif args.phase == "fixed":
-        # NOTE: Fixed Hamiltonian diagonalization
-        from gospel.Hamiltonian import Hamiltonian
-        from gospel.Eigensolver.ParallelDavidson import davidson
-
-        # Initialize the electron density
-        if args.density_filename is not None:
-            device = PH.get_device(calc.parameters["use_cuda"])
-            density = torch.load(args.density_filename)
-            density = density.reshape(1, -1).to(device)
-        else:
-            print("Initializing the density...")
-            density = calc.density.init_density()
-        calc.density.set_density(density)
-
-        calc.hamiltonian = Hamiltonian(
-            calc.nspins,
-            calc.nbands,
-            calc.grid,
-            calc.kpoint,
-            calc.pp,
-            calc.poisson_solver,
-            calc.xc_functional,
-            calc.eigensolver,
-            use_dense_kinetic=calc.parameters["use_dense_kinetic"],
-            use_cuda=calc.parameters["use_cuda"],
-        )
-        calc.hamiltonian.update(calc.density)
-        del density, calc.density, calc.kpoint, calc.poisson_solver, calc.xc_functional
-
-        # Initialize eigenpair guess
-        if args.guess_filename:
-            val, vec = torch.load(
-                args.guess_filename
-            )  # val.shape=(nbands,), vec.shape=(ngpts, nbands)
-            vec = np.array([[vec.T]], dtype=object)
-            eigpair = (val, vec)
-            calc.eigensolver.set_initial_eigenpair(
-                eigpair, use_cuda=args.use_cuda, orthonormalize=True
-            )
-            del eigpair
-        else:
-            calc.eigensolver._initialize_guess(calc.hamiltonian)
-
-        # NOTE: Set the floating point type
-        if args.fp == "SP":
-            calc.eigensolver._starting_vector[0, 0] = calc.eigensolver._starting_vector[
-                0, 0
-            ].to(torch.float32)
-
-        # Diagonalization
-        results = davidson(
-            A=calc.hamiltonian[0, 0],
-            X=calc.eigensolver._starting_vector[0, 0],
-            B=None,
-            preconditioner=calc.eigensolver.preconditioner,
-            tol=args.fixed_convg_tol,
-            maxiter=args.diag_iter,
-            nblock=args.nblock,
-            locking=args.locking,
-            fill_block=args.fill_block,
-            verbosity=1,
-            retHistory=(args.retHistory is not None),
-            skip_init_ortho=False,
-            timing=True,
-            use_MP=(args.fp == "MP"),
-            MP_dtype=args.MP_dtype,
-            MP_scheme=args.MP_scheme,
-            debug_recalc_convg_history=args.recalc_convg_history,
-        )
-        del calc
-
-        # NOTE: Save residual history
-        if args.retHistory is not None:
-            eigval, eigvec, eigHistory, resHistory = results
-            print("Saving convergence history...")
-            torch.save((eigHistory, resHistory), args.retHistory)
-            print(f"{args.retHistory} is saved.")
-        else:
-            eigval, eigvec = results
-
-        if args.save_eig:
-            print("Saving eigpair...")
-            eigval = eigval.cpu()
-            eigvec = PH.merge(eigvec).cpu()
-            eigpairs = (eigval, eigvec)
-            filename = "eigpairs.pt"
-            torch.save(eigpairs, filename)
-            print(f"{filename} is saved.")
-    else:
-        raise NotImplementedError("Only support 'scf' or 'fixed'.")
+    Timer.reset()
+    main(args)
+    Timer.print_summary()

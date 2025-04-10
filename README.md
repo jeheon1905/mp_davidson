@@ -72,3 +72,11 @@ cd ./system_generation
 python make_nanotube.py --mn 6 0 --save ../data/systems/CNT_6_0.cif
 ```
 For more details on building structures, refer to [ASE Build](https://wiki.fysik.dtu.dk/ase/ase/build/build.html).
+
+
+## Reproducibility
+You can reproduce the experiments ...
+
+```bash
+bash configs/config.yaml  # TODO implement
+```

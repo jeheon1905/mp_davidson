@@ -1,6 +1,7 @@
 """
 Plot residual history.
 """
+
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -31,7 +32,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save",
         type=str,
-        help="save png filename (.png)",
+        help="save filename (e.g., 'fig.png', 'fig.svg', etc.)",
         required=False,
         default=None,
     )
@@ -59,14 +60,15 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-
     eigvalHistory, resHistory = torch.load(args.filepath)
     eigvalHistory = abs(torch.stack(eigvalHistory) - eigvalHistory[-1])
     # TODO: replace eigvalHistory[-1] with the true eigenvalues (from DP calculation)
 
     if args.num_eig:
-        eigvalHistory = torch.stack([eigval[:args.num_eig] for eigval in eigvalHistory])
-        resHistory = torch.stack([res[:args.num_eig] for res in resHistory])
+        eigvalHistory = torch.stack(
+            [eigval[: args.num_eig] for eigval in eigvalHistory]
+        )
+        resHistory = torch.stack([res[: args.num_eig] for res in resHistory])
 
     iterationNumber = len(resHistory)
     i_iter = np.arange(1, iterationNumber + 1)
