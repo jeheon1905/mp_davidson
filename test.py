@@ -1,6 +1,4 @@
 import argparse
-import builtins
-import contextlib
 import datetime
 import os
 import sys
@@ -11,35 +9,7 @@ from gospel import GOSPEL
 from gospel.ParallelHelper import ParallelHelper as PH
 from gospel.Eigensolver.precondition import create_preconditioner
 from gospel.util import Timer
-from mp_davidson.utils import get_git_commit
-
-
-@contextlib.contextmanager
-def block_all_print():
-    original_print = builtins.print
-    original_stdout = sys.stdout
-    with open(os.devnull, "w") as fnull:
-        builtins.print = lambda *args, **kwargs: None
-        sys.stdout = fnull
-        try:
-            yield
-        finally:
-            builtins.print = original_print
-            sys.stdout = original_stdout
-
-
-def make_atoms(cif_filename, supercell=[1, 1, 1], pbc=[True, True, True]):
-    from ase.build import make_supercell
-    from ase.io import read
-
-    atoms = read(cif_filename)
-    prim = np.diag(supercell)
-    atoms = make_supercell(atoms, prim)
-    atoms.set_pbc(pbc)
-    vacuum = 3.0
-    print(f"vacuum is set to {vacuum}")
-    atoms.center(vacuum=vacuum, axis=np.arange(3)[~atoms.get_pbc()])
-    return atoms
+from mp_davidson.utils import make_atoms, get_git_commit, block_all_print
 
 
 def main(args: argparse.Namespace) -> None:
