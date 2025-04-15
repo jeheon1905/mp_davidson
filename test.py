@@ -8,7 +8,7 @@ import numpy as np
 from gospel import GOSPEL
 from gospel.ParallelHelper import ParallelHelper as PH
 from gospel.Eigensolver.precondition import create_preconditioner
-from gospel.util import Timer
+from gospel.util import Timer, set_global_seed
 from mp_davidson.utils import make_atoms, get_git_commit, block_all_print
 
 
@@ -55,7 +55,7 @@ def main(args: argparse.Namespace) -> None:
     calc = GOSPEL(
         mixing={"what": "potential"},
         print_energies=True,
-        use_cuda=bool(args.use_cuda),
+        use_cuda=args.use_cuda,
         use_dense_kinetic=args.use_dense_kinetic,
         precond_type=None,
         eigensolver=eigensolver,
@@ -114,9 +114,8 @@ def main(args: argparse.Namespace) -> None:
 
         # Initialize the electron density
         if args.density_filename is not None:
-            device = PH.get_device(calc.parameters["use_cuda"])
             density = torch.load(args.density_filename)
-            density = density.reshape(1, -1).to(device)
+            density = density.reshape(1, -1).to(PH.get_device())
         else:
             print("Initializing the density...")
             density = calc.density.init_density()
@@ -132,7 +131,7 @@ def main(args: argparse.Namespace) -> None:
             calc.xc_functional,
             calc.eigensolver,
             use_dense_kinetic=calc.parameters["use_dense_kinetic"],
-            use_cuda=calc.parameters["use_cuda"],
+            device=PH.get_device(),
         )
         calc.hamiltonian.update(calc.density)
         del density, calc.density, calc.kpoint, calc.poisson_solver, calc.xc_functional
@@ -145,7 +144,7 @@ def main(args: argparse.Namespace) -> None:
             vec = np.array([[vec.T]], dtype=object)
             eigpair = (val, vec)
             calc.eigensolver.set_initial_eigenpair(
-                eigpair, use_cuda=args.use_cuda, orthonormalize=True
+                eigpair, device=PH.get_device(), orthonormalize=True
             )
             del eigpair
         else:
@@ -241,9 +240,6 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--diag_iter", type=int, default=2, help="eigensolver's maxiter"
-    )
-    parser.add_argument(
-        "--use_cuda", type=int, default=1, help="whether using CUDA. 0=False, 1=True"
     )
     parser.add_argument("--phase", type=str, default="fixed", choices=["scf", "fixed"])
     parser.add_argument(
@@ -366,13 +362,27 @@ if __name__ == "__main__":
         default=0,
         help="verbosity level",
     )
+    parser.add_argument(
+        "--use_cuda",
+        action="store_true",
+        help="whether to use CUDA",
+    )
+    parser.add_argument(
+        "--warmup",
+        type=int,
+        default=1,
+        help="whether to warm up the GPU (0=False, 1=True)",
+    )
     args = parser.parse_args()
     print(f"datetime: {datetime.datetime.now()}")
     print(f"GOSPEL git commit: {get_git_commit('gospel')}")
     print(f"mp_davidson git commit: {get_git_commit('mp_davidson')}")
     print("args=", args)
 
-    torch.manual_seed(args.seed)
+    # ParallelHelper initialization
+    PH.init_from_env(args.use_cuda)
+    set_global_seed(args.seed + PH.rank)
+
     torch.set_num_threads(os.cpu_count() if args.threads is None else args.threads)
     if torch.cuda.is_available():
         print(f"Number of GPUs detected: {torch.cuda.device_count()}")
@@ -390,9 +400,10 @@ if __name__ == "__main__":
         torch.backends.cuda.matmul.allow_tf32 = False
 
     # Warm up
-    with block_all_print():
-        main(args)
-    print("Warm-up finished")
+    if args.warmup:
+        with block_all_print():
+            main(args)
+        print("Warm-up finished")
 
     Timer.reset()
     main(args)
