@@ -364,7 +364,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--use_cuda",
-        action="store_true",
+        type=int,
+        default=1,
         help="whether to use CUDA",
     )
     parser.add_argument(
