@@ -6,7 +6,7 @@ nocc=80
 system_options="--filepath ./data/systems/${system_name}.cif --pbc 1 1 1"
 
 # experiment name and save directory
-save_dir=expt.${system_name}.sparse
+save_dir=expt.${system_name}.sparse.thr1e-3
 additional_options=""
 
 # Define the calculation options

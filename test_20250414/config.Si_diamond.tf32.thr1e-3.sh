@@ -6,7 +6,7 @@ nocc=64
 system_options="--filepath ./data/systems/${system_name}.cif --pbc 1 1 1"
 
 # experiment name and save directory
-save_dir=expt.${system_name}.tf32
+save_dir=expt.${system_name}.tf32.thr1e-3
 additional_options="--use_dense_kinetic --use_dense_proj --allow_tf32"
 
 # Define the calculation options
