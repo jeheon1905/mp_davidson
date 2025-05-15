@@ -148,13 +148,32 @@ def main(args: argparse.Namespace) -> None:
             )
             del eigpair
         else:
+            # Initialized with orthonormalized random vectors
             calc.eigensolver._initialize_guess(calc.hamiltonian)
 
-        # NOTE: Set the floating point type
+        # NOTE: Set the floating point type for the starting vector
         if args.fp == "SP":
-            calc.eigensolver._starting_vector[0, 0] = calc.eigensolver._starting_vector[
-                0, 0
-            ].to(torch.float32)
+            init_vec_dtype = torch.float32
+        elif args.fp == "HP":
+            init_vec_dtype = torch.float16
+        elif args.fp == "BF16":
+            init_vec_dtype = torch.bfloat16
+        elif args.fp == "MP":
+            if args.MP_scheme in [1, 2, 4]:
+                if args.MP_dtype == "SP":
+                    init_vec_dtype = torch.float32
+                elif args.MP_dtype == "HP":
+                    init_vec_dtype = torch.float16
+                elif args.MP_dtype == "BF16":
+                    init_vec_dtype = torch.bfloat16
+            else:
+                init_vec_dtype = torch.float64
+        else:
+            init_vec_dtype = torch.float64
+
+        calc.eigensolver._starting_vector[0, 0] = calc.eigensolver._starting_vector[
+            0, 0
+        ].to(init_vec_dtype)
 
         # Reset initialization time records (only measure diagonalization times)
         Timer.reset()
@@ -172,7 +191,7 @@ def main(args: argparse.Namespace) -> None:
             fill_block=args.fill_block,
             verbosity=args.verbosity,
             retHistory=(args.retHistory is not None),
-            skip_init_ortho=False,
+            skip_init_ortho=True,  # already orthonormalized at initialization
             timing=True,
             use_MP=(args.fp == "MP"),
             MP_dtype=args.MP_dtype,
@@ -295,14 +314,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--fp",
         type=str,
-        choices=["DP", "SP", "MP"],
+        choices=["DP", "SP", "HP", "BF16", "MP"],
         default="DP",
         help="floating point type",
     )
     parser.add_argument(
         "--precond_fp",
         type=str,
-        choices=["DP", "SP", "HP"],
+        choices=["DP", "SP", "HP", "BF16"],
         default="DP",
         help="floating point precision for preconditioner",
     )
@@ -324,7 +343,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--MP_dtype",
         type=str,
-        choices=["SP", "HP"],
+        choices=["SP", "HP", "BF16"],
         default="SP",
         help="mixed precision data type (default: SP)",
     )

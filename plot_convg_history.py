@@ -58,17 +58,32 @@ if __name__ == "__main__":
         required=False,
         default="residue",
     )
+    parser.add_argument(
+        "--ref_filepath",
+        type=str,
+        help="reference history file (.pt)",
+        default=None,
+    )
     args = parser.parse_args()
 
     eigvalHistory, resHistory = torch.load(args.filepath)
-    eigvalHistory = abs(torch.stack(eigvalHistory) - eigvalHistory[-1])
-    # TODO: replace eigvalHistory[-1] with the true eigenvalues (from DP calculation)
+
+    ## TODO: replace eigvalHistory[-1] with the true eigenvalues (from DP calculation)
+    if args.ref_filepath is not None:
+        eigvalHistory_ref, _ = torch.load(args.ref_filepath)
+        ref_eigval = eigvalHistory_ref[-1]
+    else:
+        ref_eigval = eigvalHistory[-1]
+    eigvalHistory = abs(torch.stack(eigvalHistory) - ref_eigval)
 
     if args.num_eig:
         eigvalHistory = torch.stack(
             [eigval[: args.num_eig] for eigval in eigvalHistory]
         )
         resHistory = torch.stack([res[: args.num_eig] for res in resHistory])
+
+    eigvalHistory = eigvalHistory.to(torch.float64)
+    resHistory = resHistory.to(torch.float64)
 
     iterationNumber = len(resHistory)
     i_iter = np.arange(1, iterationNumber + 1)

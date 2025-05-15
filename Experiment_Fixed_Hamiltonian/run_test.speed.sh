@@ -3,7 +3,8 @@
 # Usage example)
 # bash run_test.sh configs/config.SYSTEM_NAME.sh
 
-set -e  # for debugging.
+# set -e  # for debugging.
+cd ..  # Go to the parent directory
 
 # Load the configuration file passed by the user
 CONFIG=$1
@@ -36,29 +37,12 @@ for n in "${supercell_sizes[@]}"; do
       $additional_options \
       --nbands $nbands \
       --supercell $cell \
-      --retHistory ${prefix}.pt \
-      $opt > ${prefix}.log 2>&1"
+      $opt > ${prefix}.speed.log 2>&1"
 
     echo "Running: $prefix"
+    echo $cmd
     eval $cmd
   done
 done
 
-# Plotting
-for n in "${supercell_sizes[@]}"; do
-  cell_name="1_1_${n}"
-  num_eig=$((${nocc} * n))
-
-  for opt_name in "${option_names[@]}"; do
-    prefix="${save_dir}/${cell_name}_${opt_name}"
-    retHistory_file="${prefix}.pt"
-
-    python plot_convg_history.py --convg_tol 1e-14 --filepath "${retHistory_file}" \
-      --num_eig ${num_eig} --plot residual \
-      --save ${prefix}.residual.png
-
-    python plot_convg_history.py --convg_tol 1e-14 --filepath "${retHistory_file}" \
-      --num_eig ${num_eig} --plot eigval \
-      --save ${prefix}.eigval.png
-  done
-done
+cd -  # Go back to the original directory
