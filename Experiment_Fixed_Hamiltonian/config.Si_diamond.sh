@@ -1,6 +1,5 @@
 # configuration for Si_diamond
-supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12)
-supercell_sizes=(1 3 7)
+supercell_sizes=(1 2 3 4 5 6 7 8 9 10)
 
 system_name=Si_diamond_2x2x1
 nocc=64
@@ -41,45 +40,45 @@ options=(
   "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --recalc_convg_history"
   "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --recalc_convg_history"
 
-  # # TF32
-  # "--fp SP --dynamic --precond_fp SP --allow_tf32"
-  # "--fp DP --dynamic --precond_fp SP --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 1 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 2 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 3 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --allow_tf32"
+  # TF32
+  "--fp SP --dynamic --precond_fp SP --allow_tf32"
+  "--fp DP --dynamic --precond_fp SP --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 1 --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 2 --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 3 --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --allow_tf32"
 
-  # "--fp SP --dynamic --precond_fp SP --recalc_convg_history --allow_tf32"
-  # "--fp DP --dynamic --precond_fp SP --recalc_convg_history --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 1 --recalc_convg_history --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 2 --recalc_convg_history --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 3 --recalc_convg_history --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --recalc_convg_history --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --recalc_convg_history --allow_tf32"
+  "--fp SP --dynamic --precond_fp SP --recalc_convg_history --allow_tf32"
+  "--fp DP --dynamic --precond_fp SP --recalc_convg_history --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 1 --recalc_convg_history --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 2 --recalc_convg_history --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 3 --recalc_convg_history --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --recalc_convg_history --allow_tf32"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --recalc_convg_history --allow_tf32"
 
-  # # BF16
-  # "--fp DP --dynamic --precond_fp BF16 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 1 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 2 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 3 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 4 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 5 --MP_dtype BF16"
+  # BF16
+  "--fp DP --dynamic --precond_fp BF16 --MP_dtype BF16"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 1 --MP_dtype BF16"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 2 --MP_dtype BF16"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 3 --MP_dtype BF16"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 4 --MP_dtype BF16"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 5 --MP_dtype BF16"
 
-  # "--fp DP --dynamic --precond_fp BF16 --MP_dtype BF16 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 1 --MP_dtype BF16 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 2 --MP_dtype BF16 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 3 --MP_dtype BF16 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 4 --MP_dtype BF16 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 5 --MP_dtype BF16 --recalc_convg_history"
+  "--fp DP --dynamic --precond_fp BF16 --MP_dtype BF16 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 1 --MP_dtype BF16 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 2 --MP_dtype BF16 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 3 --MP_dtype BF16 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 4 --MP_dtype BF16 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp BF16 --MP_scheme 5 --MP_dtype BF16 --recalc_convg_history"
 )
 
 # Define the array of option names corresponding to the above options
 option_names=(
   "DP" "SP" "DP_SP4precond" "MP_scheme1" "MP_scheme2" "MP_scheme3" "MP_scheme4" "MP_scheme5"
   "DP.recalc_convg_history" "SP.recalc_convg_history" "DP_SP4precond.recalc_convg_history" "MP_scheme1.recalc_convg_history" "MP_scheme2.recalc_convg_history" "MP_scheme3.recalc_convg_history" "MP_scheme4.recalc_convg_history" "MP_scheme5.recalc_convg_history"
-  # "TF32" "DP_TF324precond" "MP_scheme1_TF32" "MP_scheme2_TF32" "MP_scheme3_TF32" "MP_scheme4_TF32" "MP_scheme5_TF32"
-  # "TF32.recalc_convg_history" "DP_TF324precond.recalc_convg_history" "MP_scheme1_TF32.recalc_convg_history" "MP_scheme2_TF32.recalc_convg_history" "MP_scheme3_TF32.recalc_convg_history" "MP_scheme4_TF32.recalc_convg_history" "MP_scheme5_TF32.recalc_convg_history"
-  # "DP_BF164precond" "MP_scheme1_BF16" "MP_scheme2_BF16" "MP_scheme3_BF16" "MP_scheme4_BF16" "MP_scheme5_BF16"
-  # "DP_BF164precond.recalc_convg_history" "MP_scheme1_BF16.recalc_convg_history" "MP_scheme2_BF16.recalc_convg_history" "MP_scheme3_BF16.recalc_convg_history" "MP_scheme4_BF16.recalc_convg_history" "MP_scheme5_BF16.recalc_convg_history"
+  "TF32" "DP_TF324precond" "MP_scheme1_TF32" "MP_scheme2_TF32" "MP_scheme3_TF32" "MP_scheme4_TF32" "MP_scheme5_TF32"
+  "TF32.recalc_convg_history" "DP_TF324precond.recalc_convg_history" "MP_scheme1_TF32.recalc_convg_history" "MP_scheme2_TF32.recalc_convg_history" "MP_scheme3_TF32.recalc_convg_history" "MP_scheme4_TF32.recalc_convg_history" "MP_scheme5_TF32.recalc_convg_history"
+  "DP_BF164precond" "MP_scheme1_BF16" "MP_scheme2_BF16" "MP_scheme3_BF16" "MP_scheme4_BF16" "MP_scheme5_BF16"
+  "DP_BF164precond.recalc_convg_history" "MP_scheme1_BF16.recalc_convg_history" "MP_scheme2_BF16.recalc_convg_history" "MP_scheme3_BF16.recalc_convg_history" "MP_scheme4_BF16.recalc_convg_history" "MP_scheme5_BF16.recalc_convg_history"
 )

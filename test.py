@@ -45,7 +45,7 @@ def main(args: argparse.Namespace) -> None:
         "locking": False,
         "fill_block": False,
         "verbosity": args.verbosity,
-        "dynamic": args.dynamic,
+        # "dynamic": args.dynamic,
         "use_MP": (args.fp == "MP"),
         "MP_dtype": args.MP_dtype,
         "MP_scheme": args.MP_scheme,
@@ -77,6 +77,10 @@ def main(args: argparse.Namespace) -> None:
             "temperature": args.temperature,
         },
         nbands=args.nbands,
+        hamiltonian={
+            "use_dense_kinetic": args.use_dense_kinetic,
+            "multi_dtype": args.multi_dtype,
+        },
     )
     atoms.calc = calc
     calc.initialize(atoms)
@@ -130,7 +134,8 @@ def main(args: argparse.Namespace) -> None:
             calc.poisson_solver,
             calc.xc_functional,
             calc.eigensolver,
-            use_dense_kinetic=calc.parameters["use_dense_kinetic"],
+            use_dense_kinetic=calc.parameters.hamiltonian.get("use_dense_kinetic"),
+            multi_dtype=calc.parameters.hamiltonian.get("multi_dtype"),
             device=PH.get_device(),
         )
         calc.hamiltonian.update(calc.density)
@@ -326,9 +331,11 @@ if __name__ == "__main__":
         help="floating point precision for preconditioner",
     )
     parser.add_argument(
-        "--dynamic",
-        action="store_true",
-        help="whether to use dynamic",
+        "--multi_dtype",
+        type=str,
+        nargs="+",
+        default=None,
+        help="multiple dtype for Hamiltonian",
     )
     parser.add_argument(
         "--allow_tf32",
@@ -411,11 +418,10 @@ if __name__ == "__main__":
 
     if args.allow_tf32:
         torch.backends.cuda.matmul.allow_tf32 = True
-        print(
-            "'use_dense_kinetic' and 'use_dense_proj' are set to True because of 'allow_tf32=True'."
-        )
-        args.use_dense_kinetic = True
-        args.use_dense_proj = True
+        if not args.use_dense_kinetic:
+            print("Warning: 'allow_tf32=True' but 'use_dense_kinetic' is set to False.")
+        if not args.use_dense_proj:
+            print("Warning: 'allow_tf32=True' but 'use_dense_proj' is set to False.")
     else:
         torch.backends.cuda.matmul.allow_tf32 = False
 

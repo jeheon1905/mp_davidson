@@ -38,6 +38,7 @@ for n in "${supercell_sizes[@]}"; do
       --nbands $nbands \
       --supercell $cell \
       --retHistory ${prefix}.pt \
+      --warmup 0 \
       $opt > ${prefix}.log 2>&1"
 
     echo "Running: $prefix"

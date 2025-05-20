@@ -21,23 +21,23 @@ unocc_ratio=1.05
 
 # Define the array of options
 options=(
-  # "--fp DP"
-  # "--fp SP --dynamic --precond_fp SP"
-  # "--fp DP --dynamic --precond_fp SP"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 1"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 2"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 3"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 4"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 5"
+  "--fp DP"
+  "--fp SP --dynamic --precond_fp SP"
+  "--fp DP --dynamic --precond_fp SP"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 1"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 2"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 3"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 4"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 5"
 
-  # "--fp DP --recalc_convg_history"
-  # "--fp SP --dynamic --precond_fp SP --recalc_convg_history"
-  # "--fp DP --dynamic --precond_fp SP --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 1 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 2 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 3 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --recalc_convg_history"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --recalc_convg_history"
+  "--fp DP --recalc_convg_history"
+  "--fp SP --dynamic --precond_fp SP --recalc_convg_history"
+  "--fp DP --dynamic --precond_fp SP --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 1 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 2 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 3 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --recalc_convg_history"
+  "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --recalc_convg_history"
 
   # TF32
   "--fp SP --dynamic --precond_fp SP --allow_tf32"
@@ -74,8 +74,8 @@ options=(
 
 # Define the array of option names corresponding to the above options
 option_names=(
-  # "DP" "SP" "DP_SP4precond" "MP_scheme1" "MP_scheme2" "MP_scheme3" "MP_scheme4" "MP_scheme5"
-  # "DP.recalc_convg_history" "SP.recalc_convg_history" "DP_SP4precond.recalc_convg_history" "MP_scheme1.recalc_convg_history" "MP_scheme2.recalc_convg_history" "MP_scheme3.recalc_convg_history" "MP_scheme4.recalc_convg_history" "MP_scheme5.recalc_convg_history"
+  "DP" "SP" "DP_SP4precond" "MP_scheme1" "MP_scheme2" "MP_scheme3" "MP_scheme4" "MP_scheme5"
+  "DP.recalc_convg_history" "SP.recalc_convg_history" "DP_SP4precond.recalc_convg_history" "MP_scheme1.recalc_convg_history" "MP_scheme2.recalc_convg_history" "MP_scheme3.recalc_convg_history" "MP_scheme4.recalc_convg_history" "MP_scheme5.recalc_convg_history"
   "TF32" "DP_TF324precond" "MP_scheme1_TF32" "MP_scheme2_TF32" "MP_scheme3_TF32" "MP_scheme4_TF32" "MP_scheme5_TF32"
   "TF32.recalc_convg_history" "DP_TF324precond.recalc_convg_history" "MP_scheme1_TF32.recalc_convg_history" "MP_scheme2_TF32.recalc_convg_history" "MP_scheme3_TF32.recalc_convg_history" "MP_scheme4_TF32.recalc_convg_history" "MP_scheme5_TF32.recalc_convg_history"
   "DP_BF164precond" "MP_scheme1_BF16" "MP_scheme2_BF16" "MP_scheme3_BF16" "MP_scheme4_BF16" "MP_scheme5_BF16"

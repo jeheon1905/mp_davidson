@@ -36,6 +36,14 @@ python setup.py develop  # or: pip install -e .
 # Example: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/path/to/libxc
 ```
 
+✅ **Note**
+This project uses a customized version of GOSPEL.
+Make sure to use the following Git state:
+
+- **Branch**: `multi_gpu`
+- **Commit**: `c9ab56c5c3165cce456958787256efe36de99a76`
+
+
 ## Tests
 This section describes how to run the available tests and interpret their results.
 
