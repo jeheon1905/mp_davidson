@@ -23,30 +23,33 @@ unocc_ratio=1.05
 # Define the array of options
 options=(
   "--fp DP"
-  "--fp SP --dynamic --precond_fp SP"
-  "--fp DP --dynamic --precond_fp SP"
-  "--fp MP --dynamic --precond_fp SP --MP_scheme 1"
-  "--fp MP --dynamic --precond_fp SP --MP_scheme 2"
-  "--fp MP --dynamic --precond_fp SP --MP_scheme 3"
-  "--fp MP --dynamic --precond_fp SP --MP_scheme 4"
-  "--fp MP --dynamic --precond_fp SP --MP_scheme 5"
+  "--fp SP --multi_dtype DP SP --precond_fp SP"
+  "--fp DP --multi_dtype DP SP --precond_fp SP"
+  "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 1"
+  "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 2"
+  "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 3"
+  "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 4"
+  "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 5"
 
   # TF32
-  "--fp SP --dynamic --precond_fp SP --allow_tf32"
-  "--fp DP --dynamic --precond_fp SP --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 1 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 2 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 3 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 4 --allow_tf32"
-  # "--fp MP --dynamic --precond_fp SP --MP_scheme 5 --allow_tf32"
+  "--fp SP --multi_dtype DP SP --precond_fp SP --allow_tf32"
+  "--fp DP --multi_dtype DP SP --precond_fp SP --allow_tf32"
+  # "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 1 --allow_tf32"
+  # "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 2 --allow_tf32"
+  # "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 3 --allow_tf32"
+  # "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 4 --allow_tf32"
+  # "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 5 --allow_tf32"
 
   # BF16
-  "--fp DP --dynamic --precond_fp BF16 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 1 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 2 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 3 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 4 --MP_dtype BF16"
-  # "--fp MP --dynamic --precond_fp BF16 --MP_scheme 5 --MP_dtype BF16"
+  "--fp DP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_dtype BF16"
+  # "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 1 --MP_dtype BF16"
+  # "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 2 --MP_dtype BF16"
+  # "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 3 --MP_dtype BF16"
+  # "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 4 --MP_dtype BF16"
+  # "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 5 --MP_dtype BF16"
+
+  # MP using SP + precond using BF16
+  "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 1 --MP_dtype SP"
 )
 
 # Define the array of option names corresponding to the above options
@@ -54,4 +57,5 @@ option_names=(
   "DP" "SP" "DP_SP4precond" "MP_scheme1" "MP_scheme2" "MP_scheme3" "MP_scheme4" "MP_scheme5"
   "TF32" "DP_TF324precond"
   "DP_BF164precond"
+  "MP_scheme1_BF164precond"
 )
