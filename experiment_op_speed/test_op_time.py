@@ -110,7 +110,7 @@ def main(args: argparse.Namespace) -> None:
             raise NotImplementedError
 
         dtype_flag = "TF32" if args.fp == "SP" and args.allow_tf32 else args.fp
-        with Timer.track(f"Operation: {op} ({dtype_flag})", True, True):
+        with Timer.track(f"Operation: {op} ({dtype_flag})", True, False):
             _ = matvec(X)
     return
 
@@ -223,3 +223,22 @@ if __name__ == "__main__":
 
     Timer.reset()
     main(args)
+
+    # Print each time
+    # Build a list of (label, total, count)
+    items = []
+    for label, data in Timer._records.items():
+        if "Operation: " not in label:
+            continue
+        total_time = data["total"]
+        c = data["count"]
+        items.append((label, total_time, c))
+
+    print("\n======================== Timer Summary ========================")
+    print(f"{'Label':40s} | {'Total(s)':>12} | {'Count':>5}")
+    print("-" * 64)
+    for label, total_time, c in items:
+        print(f"{label:40s} | {total_time:12.4f} | {c:5d}")
+    print("-" * 64 + "\n")
+    dtype_flag = "TF32" if args.fp == "SP" and args.allow_tf32 else args.fp
+    print(f"dtype: {dtype_flag}")

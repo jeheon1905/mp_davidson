@@ -64,6 +64,13 @@ if __name__ == "__main__":
         help="reference history file (.pt)",
         default=None,
     )
+    parser.add_argument(
+        "--title",
+        type=str,
+        help="title for the plot",
+        required=False,
+        default=None,
+    )
     args = parser.parse_args()
 
     eigvalHistory, resHistory = torch.load(args.filepath)
@@ -109,6 +116,8 @@ if __name__ == "__main__":
 
     # plot figure
     plt.figure(figsize=figsize)
+    if args.title is not None:
+        plt.title(args.title, fontsize=title_fontsize)
     plt.grid(True, which="both", ls="-", alpha=0.2)
     plot_options = {"color": "k", "linestyle": "-"}
     for i, res in enumerate(result):

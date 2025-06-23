@@ -21,7 +21,7 @@ python test_op_time.py --filepath ../data/systems/BaTiO3_2x2x1.cif --pbc 1 1 1 \
 
 
 
-## 2. Automated Benchmark Runner (test.operation.sh)
+## 2. Automated Benchmark Runner (`test.operation.sh`)
 
 The shell script `test.operation.sh` automates batch execution of `test_op_time.py` across:
 - Multiple supercell sizes
@@ -33,7 +33,7 @@ source ./test.operation.sh
 ```
 
 
-## 3. Floating Point Speed & Accuracy Benchmark (compare_fp_speed_and_accuracy.py)
+## 3. Floating Point Speed & Accuracy Benchmark (`compare_fp_speed_and_accuracy.py`)
 
 This script benchmarks the speed and accuracy of different floating point precisions (FP64, FP32, FP16, and TF32) on common operations such as:
 
