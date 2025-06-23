@@ -241,4 +241,7 @@ if __name__ == "__main__":
         print(f"{label:40s} | {total_time:12.4f} | {c:5d}")
     print("-" * 64 + "\n")
     dtype_flag = "TF32" if args.fp == "SP" and args.allow_tf32 else args.fp
+    print(f"supercell: {args.supercell}")
     print(f"dtype: {dtype_flag}")
+    print(f"use_dense_proj: {args.use_dense_proj}")
+    print(f"use_dense_kinetic: {args.use_dense_kinetic}")
