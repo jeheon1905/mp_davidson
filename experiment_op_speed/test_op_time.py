@@ -238,7 +238,7 @@ if __name__ == "__main__":
     print(f"{'Label':40s} | {'Total(s)':>12} | {'Count':>5}")
     print("-" * 64)
     for label, total_time, c in items:
-        print(f"{label:40s} | {total_time:12.4f} | {c:5d}")
+        print(f"{label:40s} | {total_time:12.6f} | {c:5d}")
     print("-" * 64 + "\n")
     dtype_flag = "TF32" if args.fp == "SP" and args.allow_tf32 else args.fp
     print(f"supercell: {args.supercell}")
