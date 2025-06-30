@@ -1,8 +1,8 @@
-# configuration for BaTiO3
+# configuration for MgO
 supercell_sizes=(1 2 3 4 5 6 7 8 9 10)
 
-system_name=BaTiO3_2x2x1
-nocc=80
+system_name=MgO_1x1x2
+nocc=64
 system_options="--filepath ./data/systems/${system_name}.cif --pbc 1 1 1"
 
 # experiment name and save directory

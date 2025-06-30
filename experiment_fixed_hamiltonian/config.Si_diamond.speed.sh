@@ -6,7 +6,7 @@ nocc=64
 system_options="--filepath ./data/systems/${system_name}.cif --pbc 1 1 1"
 
 # experiment name and save directory
-save_dir=./Experiment_Fixed_Hamiltonian/expt.${system_name}
+save_dir=./experiment_fixed_hamiltonian/expt.${system_name}
 additional_options="--use_dense_proj"
 
 # Define the calculation options

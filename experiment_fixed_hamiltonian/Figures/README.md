@@ -51,6 +51,20 @@ python plot_breakdown.py \
   --json_out Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.json \
   --phase fixed \
   --separate_legend
+
+- MgO
+
+```bash
+python plot_breakdown.py \
+  --log_dir ../expt.MgO_1x1x2 \
+  --supercell 1_1_5 \
+  --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
+  --labels 'DP' 'MP1' 'MP6' 'MP1*' \
+  --output Figures_time_breakdown/time_breakdown.MgO_1x1x2.svg \
+  --json_out Figures_time_breakdown/time_breakdown.MgO_1x1x2.json \
+  --phase fixed \
+  --separate_legend
+```
 ```
 
 # Figure 3:
