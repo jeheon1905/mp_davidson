@@ -1,11 +1,13 @@
 #!/bin/bash
 
 # supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+# supercell_sizes=(1 3 5 7 9 11 13 15 17 19)
+# supercell_sizes=(1 3 5 7 9 11) # 9 11 13 15 17 19)
 supercell_sizes=(1 3 5 7 9 11 13 15 17 19)
 
-# TEST BaTiO3
-system_name=BaTiO3_2x2x1
-nocc=80
+# TEST MgO
+system_name=MgO_1x1x2
+nocc=64
 system_options="--filepath ../data/systems/${system_name}.cif --pbc 1 1 1"
 
 use_cuda=1

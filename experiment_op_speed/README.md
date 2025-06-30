@@ -29,7 +29,8 @@ The shell script `test.operation.sh` automates batch execution of `test_op_time.
 
 ▶️ To Run:
 ```bash
-source ./test.operation.sh
+source ./test.operation.sh &> results/MgO.A100.log
+python print_table results/MgO.A100.log
 ```
 
 
