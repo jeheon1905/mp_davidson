@@ -301,7 +301,12 @@ def main():
     # Process each log
     aggregated_results = []
     for method in args.methods:
-        log_path = os.path.join(args.log_dir, f"{args.supercell}_{method}.speed.log")
+        if args.phase == "fixed":
+            log_path = os.path.join(
+                args.log_dir, f"{args.supercell}_{method}.speed.log"
+            )
+        else:
+            log_path = os.path.join(args.log_dir, f"{args.supercell}_{method}.log")
         raw = parse_log_file(log_path)
         agg = aggregate_timing_by_category(raw, category_map, phase=args.phase)
         aggregated_results.append(agg)
@@ -312,6 +317,21 @@ def main():
     for i, result in enumerate(aggregated_results):
         result["total_time"] = total_times[i]
         result["acc_fold"] = acc_folds[i]
+
+    if args.phase == "scf":
+        scf_steps = []
+        for method in args.methods:
+            scf_log_path = os.path.join(args.log_dir, f"{args.supercell}_{method}.log")
+            with open(scf_log_path, "r") as f:
+                for line in f:
+                    if "SCF CONVERGED" in line:
+                        match = re.search(r"SCF CONVERGED with (\d+) iters", line)
+                        if match:
+                            scf_steps.append(int(match.group(1)))
+                        break
+
+        for i, result in enumerate(aggregated_results):
+            result["scf_steps"] = scf_steps[i]
 
     # Save to JSON
     with open(args.json_out, "w") as f:
