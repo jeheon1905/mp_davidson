@@ -15,11 +15,11 @@ unocc_ratio=1.05
 
 calc_options="--pp_type $pp_type --spacing $spacing --use_cuda $use_cuda"
 options=(
-    "--fp DP"
-    "--fp SP"
-    "--fp SP --allow_tf32"
-    "--fp HP"
-    "--fp BF16"
+    # "--fp DP"
+    # "--fp SP"
+    # "--fp SP --allow_tf32"
+    # "--fp HP"
+    # "--fp BF16"
 
     "--fp DP --use_dense_proj"
     "--fp SP --use_dense_proj"
