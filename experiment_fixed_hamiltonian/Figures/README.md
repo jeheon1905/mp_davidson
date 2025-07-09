@@ -1,15 +1,28 @@
+# Figures
 
-# Figure 1 and Figure S1
+After peforming speed tests at `expeirment_fixed_hamiltnoian/`, plot figures.
+
+## Figure 1 and Figure S1
+
+Plot convergence history with x-axis of iterations and y-axis of eigenvalue errors or residual norm.
+Compared methods: DP, SP, MP1, MP2, MP3, MP4, MP5, MP6, MP1*
+
 ```bash
 # Save figures into ./Figures_convg_history
 source plot.convg_history.sh
 ```
 
-# Figure S2
-Not implemented yet.
+## Figure S2
+
+Plot convergence history with x-axis of iterations and y-axis of eigenvalue errors or residual norm.
+Compared methods: all
+
+```bash
+# Not implemented yet.
+```
 
 
-# Figure 2: Time breakdown
+## Figure 2: Time breakdown
 
 - CNT (6, 0)
 
@@ -51,6 +64,7 @@ python plot_breakdown.py \
   --json_out Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.json \
   --phase fixed \
   --separate_legend
+```
 
 - MgO
 
@@ -65,9 +79,13 @@ python plot_breakdown.py \
   --phase fixed \
   --separate_legend
 ```
+
+
+## Figure 3: performance enhancements as a function of system sizes
+
+Plot performance enhancements of three different systems with x-axis of the number of atoms and y-axis of performance enhancements.
+
+```bash
+source make_csv.sh
+python plot_performance_vs_size.py
 ```
-
-# Figure 3:
-
-
-

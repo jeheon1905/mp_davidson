@@ -1,10 +1,44 @@
 """
-Plot residual history.
+Plot residual history with enhanced styling options.
 """
 
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
+
+
+def setup_plot_style(base_font_size=14):
+    """Sets the style for matplotlib plots, including font sizes and other aesthetic parameters.
+
+    Args:
+        base_font_size (int): Base font size for the plot. Other text elements will be scaled relative to this size.
+    """
+    # scale factors for different text elements
+    scale_factors = {
+        "title": 1.3,  # 130% of base font size
+        "label": 1.15,  # 115% of base font size
+        "tick": 1.0,  # 100% of base font size
+        "legend": 0.85,  # 85% of base font size
+    }
+
+    plt.rcParams.update(
+        {
+            "font.size": base_font_size,
+            "axes.titlesize": base_font_size * scale_factors["title"],
+            "figure.titlesize": base_font_size * scale_factors["title"],
+            "axes.labelsize": base_font_size * scale_factors["label"],
+            "xtick.labelsize": base_font_size * scale_factors["tick"],
+            "ytick.labelsize": base_font_size * scale_factors["tick"],
+            "legend.fontsize": base_font_size * scale_factors["legend"],
+            "legend.title_fontsize": base_font_size * scale_factors["legend"],
+            # additional style settings
+            "font.family": "sans-serif",
+            "font.sans-serif": ["DejaVu Sans", "Arial", "Helvetica"],
+            "figure.dpi": 100,
+            "savefig.dpi": 300,
+            "figure.autolayout": True,
+        }
+    )
 
 
 def remove_converged_residuals(resnorm, tol=1e-3):
@@ -71,7 +105,25 @@ if __name__ == "__main__":
         required=False,
         default=None,
     )
+    parser.add_argument(
+        "--font_size",
+        type=int,
+        help="base font size for the plot (default to 14)",
+        required=False,
+        default=14,
+    )
+    parser.add_argument(
+        "--figsize",
+        type=float,
+        nargs=2,
+        help="figure size as width height (default to 3.6 4.2)",
+        required=False,
+        default=[3.6, 4.2],
+    )
     args = parser.parse_args()
+
+    # set up plot style
+    setup_plot_style(base_font_size=args.font_size)
 
     eigvalHistory, resHistory = torch.load(args.filepath)
 
@@ -105,29 +157,25 @@ if __name__ == "__main__":
         ylabel = "Eigenvalue Error (Hartree)"
 
     # figure options
-    figsize = [3.6, 4.2]  # Main text 용.
-    title_fontsize = 14
-    label_fontsize = 12
-    legend_fontsize = 10
-    tick_labelsize = 12
+    figsize = args.figsize
     tick_length = 6
     tick_width = 1.0
-    linewidth = 2
+    linewidth = 1.5
 
     # plot figure
     plt.figure(figsize=figsize)
     if args.title is not None:
-        plt.title(args.title, fontsize=title_fontsize)
+        plt.title(args.title)
     plt.grid(True, which="both", ls="-", alpha=0.2)
-    plot_options = {"color": "k", "linestyle": "-"}
+    plot_options = {"color": "k", "linestyle": "-", "linewidth": linewidth}
     for i, res in enumerate(result):
         alpha = 1.0 / len(result) * (i + 1)
         plt.plot(i_iter, res, **plot_options, alpha=alpha)
 
-    plt.xlabel("Iteration", fontsize=label_fontsize)
-    plt.ylabel(ylabel, fontsize=label_fontsize)
+    plt.xlabel("Iteration")
+    plt.ylabel(ylabel)
     plt.yscale("log")
-    plt.tick_params(length=tick_length, width=tick_width, labelsize=tick_labelsize)
+    plt.tick_params(length=tick_length, width=tick_width)
     # plt.xlim(0, 41)
     plt.ylim(bottom=args.convg_tol)
     plt.tight_layout()
@@ -135,7 +183,7 @@ if __name__ == "__main__":
     # save figure
     if args.save:
         save_filename = args.save
-        plt.savefig(save_filename, dpi=300)
+        plt.savefig(save_filename)
         print(f"{save_filename} is saved.")
     else:
         plt.show()

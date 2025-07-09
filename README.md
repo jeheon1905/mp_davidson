@@ -41,7 +41,7 @@ This project uses a customized version of GOSPEL.
 Make sure to use the following Git state:
 
 - **Branch**: `multi_gpu`
-- **Commit**: `c9ab56c5c3165cce456958787256efe36de99a76`
+- **Commit**: `fccffc5d37af5865d0d775dbe0b47bc4b859e70e`
 
 
 ## Tests

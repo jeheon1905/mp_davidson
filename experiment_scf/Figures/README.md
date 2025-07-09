@@ -11,7 +11,8 @@ python ../../experiment_fixed_hamiltonian/Figures/plot_breakdown.py \
   --output Figures_time_breakdown/time_breakdown.CNT_1_1_5.svg \
   --json_out Figures_time_breakdown/time_breakdown.CNT_1_1_5.json \
   --phase scf \
-  --separate_legend
+  --separate_legend \
+  --legend_cols 4
 ```
 
 - BaTiO3
@@ -25,7 +26,8 @@ python ../../experiment_fixed_hamiltonian/Figures/plot_breakdown.py \
   --output Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.svg \
   --json_out Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.json \
   --phase scf \
-  --separate_legend
+  --separate_legend \
+  --legend_cols 4
 ```
 
 - MgO
@@ -39,7 +41,8 @@ python ../../experiment_fixed_hamiltonian/Figures/plot_breakdown.py \
   --output Figures_time_breakdown/time_breakdown.MgO_1x1x2.svg \
   --json_out Figures_time_breakdown/time_breakdown.MgO_1x1x2.json \
   --phase scf \
-  --separate_legend
+  --separate_legend \
+  --legend_cols 4
 ```
 
 - Si diamond
@@ -53,6 +56,7 @@ python ../../experiment_fixed_hamiltonian/Figures/plot_breakdown.py \
   --output Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.svg \
   --json_out Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.json \
   --phase scf \
-  --separate_legend
+  --separate_legend \
+  --legend_cols 4
 ```
 

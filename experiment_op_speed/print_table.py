@@ -4,6 +4,8 @@ import re
 from typing import List, Dict, Any
 
 
+dtype_list = ["SP", "TF32", "BF16", "HP"]
+
 def parse_timer_summaries(log_content: str) -> pd.DataFrame:
     """
     BaTiO3.log 파일에서 Timer Summary 정보를 파싱하여 DataFrame으로 반환
@@ -42,7 +44,7 @@ def parse_timer_summaries(log_content: str) -> pd.DataFrame:
             record = {
                 "operation": op_name,
                 "operation_dtype": op_dtype,
-                "time_seconds": float(time),
+                "time_msec": float(time) * 1000,
                 "count": int(count),
                 "supercell_size": supercell_size,
                 "dtype": dtype_match.group(1) if dtype_match else None,
@@ -75,7 +77,7 @@ def create_performance_table(df: pd.DataFrame, use_dense_proj=False):
 
     # 피벗 테이블 생성 - DP용
     dp_pivot = df_dp.pivot_table(
-        values="time_seconds",
+        values="time_msec",
         index="operation",
         columns="supercell_size",
         aggfunc="sum",
@@ -83,7 +85,7 @@ def create_performance_table(df: pd.DataFrame, use_dense_proj=False):
 
     # 피벗 테이블 생성 - 다른 dtype용
     other_pivot = df_others.pivot_table(
-        values="time_seconds",
+        values="time_msec",
         index=["operation", "dtype"],
         columns="supercell_size",
         aggfunc="sum",
@@ -101,7 +103,7 @@ def create_performance_table(df: pd.DataFrame, use_dense_proj=False):
         dp_times = dp_pivot.loc[op_name]
 
         # 각 dtype의 가속 비율 추가
-        for dtype in ["SP", "TF32", "BF16"]:
+        for dtype in dtype_list:
             if (op_name, dtype) in other_pivot.index:
                 other_times = other_pivot.loc[(op_name, dtype)]
                 # DP 시간 / 다른 dtype 시간 = 가속 비율
@@ -111,7 +113,7 @@ def create_performance_table(df: pd.DataFrame, use_dense_proj=False):
 
         # 해당 operation의 DP time 추가
         result_rows.append(dp_times)
-        result_index.append(("DP time (sec)", ""))
+        result_index.append(("DP time (ms)", ""))
 
     # DataFrame 생성
     formatted_table = pd.DataFrame(
@@ -146,12 +148,13 @@ def print_performance_table(table: pd.DataFrame, title: str = "Performance Compa
     # 데이터 출력
     current_op = None
     for (op, dtype), row in table.iterrows():
-        if op == "DP time (sec)":
+        if op == "DP time (ms)":
             print("-" * 120)
             print(f"{op:<24}", end=" ")
             for val in row:
                 if pd.notna(val):
-                    print(f"{val:>10.6f}", end="")
+                    # print(f"{val:>10.6f}", end="")
+                    print(f"{val:>10.3f}", end="")
                 else:
                     print(f"{'N/A':>10}", end="")
             print()
@@ -189,10 +192,10 @@ def analyze_performance_trends(df: pd.DataFrame):
         print(f"\n--- use_dense_proj = {use_dense} ---")
 
         # 각 dtype별 평균 성능
-        for dtype in ["SP", "TF32", "BF16"]:
+        for dtype in dtype_list:
             dtype_data = df_filtered[df_filtered["dtype"] == dtype]
             if not dtype_data.empty:
-                avg_time = dtype_data.groupby("operation")["time_seconds"].mean()
+                avg_time = dtype_data.groupby("operation")["time_msec"].mean()
                 print(f"\n{dtype} 평균 실행 시간:")
                 for op, time in avg_time.items():
                     print(f"  {op}: {time:.6f}s")
@@ -234,7 +237,7 @@ if __name__ == "__main__":
 
             # 평균 가속 비율 계산
             print("\n=== 평균 가속 비율 (use_dense_proj=False) ===")
-            for dtype in ["SP", "TF32", "BF16"]:
+            for dtype in dtype_list:
                 dtype_values = []
                 for idx, row in table_false.iterrows():
                     if len(idx) > 1 and idx[1] == dtype:
@@ -259,7 +262,7 @@ if __name__ == "__main__":
 
             # 평균 가속 비율 계산
             print("\n=== 평균 가속 비율 (use_dense_proj=True) ===")
-            for dtype in ["SP", "TF32", "BF16"]:
+            for dtype in dtype_list:
                 dtype_values = []
                 for idx, row in table_true.iterrows():
                     if len(idx) > 1 and idx[1] == dtype:
