@@ -249,91 +249,71 @@ def plot_type1_speedup_by_gpu(
 
 
 def plot_type2_time_comparison(
-    df, system_name, save_path=None, custom_font_config=None, figsize=(9, 6)
+    df, system_name, save_path=None, legend_path=None,
+    custom_font_config=None, figsize=(9, 6)
 ):
     """
     Type 2: 하나의 System에 대한 그림
-    x-axis: natoms, y-axis: Time, legend: GPU 및 method (DP, MP1)
+    x-axis: natoms, y-axis: Time, legend: GPU 및 method (DP, MP1*)
 
     Args:
         df: DataFrame with performance data
         system_name: Name of the system to plot
         save_path: Path to save the figure
+        legend_path: Path to save the legend box
         custom_font_config: Custom font configuration dict (optional)
     """
-    # 폰트 설정 사용
     font_config = custom_font_config or CURRENT_FONT_CONFIG
 
     fig, ax = plt.subplots(figsize=figsize)
 
-    # 선택된 시스템 데이터만 필터링
     system_data = df[df["System"] == system_name].copy()
+    line_styles = {"DP": "-", "MP1*": "--"}
 
-    # 라인 스타일 정의
-    line_styles = {"DP": "-", "MP1": "--"}
-
-    # GPU별로 플롯
     for gpu in system_data["GPU"].unique():
         gpu_data = system_data[system_data["GPU"] == gpu].sort_values("Natoms")
 
-        # Baseline (DP) 플롯
         dp_data = gpu_data.dropna(subset=["Baseline_Time"])
         if not dp_data.empty:
             ax.plot(
-                dp_data["Natoms"],
-                dp_data["Baseline_Time"],
-                marker="o",
-                # markersize=font_config['base']*0.6,
-                # linewidth=font_config['base']/5,
-                linestyle=line_styles["DP"],
+                dp_data["Natoms"], dp_data["Baseline_Time"],
+                marker="o", linestyle=line_styles["DP"],
                 label=f"DP ({gpu})",
                 color=gpu_colors.get(gpu, "gray"),
             )
 
-        # Method (MP1) 플롯
         mp1_data = gpu_data.dropna(subset=["Method_Time"])
         if not mp1_data.empty:
             ax.plot(
-                mp1_data["Natoms"],
-                mp1_data["Method_Time"],
-                marker="s",
-                # markersize=font_config['base']*0.6,
-                # linewidth=font_config['base']/5,
-                linestyle=line_styles["MP1"],
-                label=f"MP1 ({gpu})",
+                mp1_data["Natoms"], mp1_data["Method_Time"],
+                marker="s", linestyle=line_styles["MP1*"],
+                label=f"MP1* ({gpu})",
                 color=gpu_colors.get(gpu, "gray"),
             )
 
-    # 그래프 꾸미기
     ax.set_xlabel("Number of atoms", fontsize=font_config["label"])
     ax.set_ylabel("Diag. time (sec)", fontsize=font_config["label"])
-    # ax.set_title(f'Computation Time vs System Size - {get_short_system_name(system_name)}',
-    #              fontsize=font_config['title'], fontweight='bold')
-
     ax.grid(True, alpha=0.3, linestyle="-", linewidth=font_config["base"] / 20)
-
-    # 범례 설정 - handlelength를 늘려서 점선이 잘 보이도록 함
-    ax.legend(
-        loc="upper left",
-        frameon=True,
-        shadow=False,
-        ncol=2,
-        fontsize=font_config["legend"],
-        handlelength=3.0,  # 범례의 선 길이를 늘림
-        handleheight=1.0,
-    )  # 범례의 선 높이
-
-    # 틱 레이블 크기 설정
     ax.tick_params(axis="both", labelsize=font_config["tick"])
 
-    # y축을 로그 스케일로 설정 (선택사항)
-    # ax.set_yscale('log')
+    # 원래 Figure에서는 legend를 그리지 않음
+    handles, labels = ax.get_legend_handles_labels()
 
     plt.tight_layout()
-
     if save_path:
         plt.savefig(save_path, bbox_inches="tight")
     plt.show()
+
+    # 범례만 별도 Figure로 저장
+    if legend_path:
+        fig_leg = plt.figure(figsize=(4, 2))
+        fig_leg.legend(
+            handles, labels, loc="center", frameon=True, ncol=2,
+            fontsize=font_config["legend"], handlelength=3.0, handleheight=1.0
+        )
+        fig_leg.tight_layout()
+        fig_leg.savefig(legend_path, bbox_inches="tight")
+        plt.close(fig_leg)
 
 
 def plot_type3_speedup_by_system(
@@ -407,7 +387,8 @@ if __name__ == "__main__":
     supercell_list = list(range(1, 15))
     method = "MP_scheme1_BF164precond"
     # gpu_list = ["A100"]
-    gpu_list = ["A100", "A6000"]
+    # gpu_list = ["A100", "A6000"]
+    gpu_list = ["A100", "A6000", "L40S"]
 
     # 전체 결과를 하나의 DataFrame으로 생성
     combined_df = create_combined_dataframe(
@@ -418,14 +399,17 @@ if __name__ == "__main__":
     # Plot figure
     # 개별 플롯 생성 예시
     for system in ["CNT_6_0", "MgO_1x1x2", "Si_diamond_2x2x1"]:
-        # Type 1: CNT 시스템의 GPU별 Speedup
+        # Type 1: Comparions of the speedups relative to DP calculation
         filename = f"./Figures_performance_vs_size/type1_speedup_{system}.svg"
         plot_type1_speedup_by_gpu(combined_df, system, filename, figsize=figsize)
         print(f"Save plot to {filename}")
 
-        # Type 2: MgO 시스템의 시간 비교
+        # Type 2: Diag. time comparison as a function of the number of atoms
         filename = f"./Figures_performance_vs_size/type2_time_{system}.svg"
-        plot_type2_time_comparison(combined_df, system, filename, figsize=figsize)
+        filename_legend = "./Figures_performance_vs_size/legend_box.svg"
+        # plot_type2_time_comparison(combined_df, system, filename, figsize=figsize)
+        plot_type2_time_comparison(combined_df, system, filename, legend_path=filename_legend, figsize=figsize)
+        print(f"Save legend box to {filename_legend}")
         print(f"Save plot to {filename}")
 
     # # Type 3: A100 GPU의 시스템별 Speedup

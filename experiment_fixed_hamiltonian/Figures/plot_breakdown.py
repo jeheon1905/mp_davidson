@@ -115,6 +115,7 @@ def plot_accumulated_histogram(
     bar_width=0.8,
     save_legend_separately=True,
     legend_cols=3,
+    phase="fixed",
 ):
     """Draw stacked bar plot (accumulated histogram) with optional separate legend.
 
@@ -151,7 +152,12 @@ def plot_accumulated_histogram(
 
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
-    ax.set_ylabel("Time (sec)")
+    if phase == "fixed":
+        ax.set_ylabel("Diag. time (sec)")
+    elif phase == "scf":
+        ax.set_ylabel("SCF time (sec)")
+    else:
+        raise ValueError
 
     # 그리드 추가 (선택사항)
     ax.grid(True, axis="y", alpha=0.3, linestyle="--")
@@ -350,6 +356,7 @@ def main():
         bar_width=args.bar_width,
         save_legend_separately=args.separate_legend,
         legend_cols=args.legend_cols,
+        phase=args.phase,
     )
 
 
