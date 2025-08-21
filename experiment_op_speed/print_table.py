@@ -8,7 +8,7 @@ dtype_list = ["SP", "TF32", "BF16", "HP"]
 
 def parse_timer_summaries(log_content: str) -> pd.DataFrame:
     """
-    BaTiO3.log 파일에서 Timer Summary 정보를 파싱하여 DataFrame으로 반환
+    log 파일에서 Timer Summary 정보를 파싱하여 DataFrame으로 반환
     """
 
     # Timer Summary 블록들을 찾기 위한 패턴
@@ -208,7 +208,6 @@ if __name__ == "__main__":
 
     filename = sys.argv[-1]
 
-    # with open('../BaTiO3.log', 'r') as f:
     with open(filename, "r") as f:
         log_content = f.read()
 

@@ -384,10 +384,8 @@ if __name__ == "__main__":
     figsize = (10, 7)
 
     system_name_list = ["CNT_6_0", "MgO_1x1x2", "Si_diamond_2x2x1"]
-    supercell_list = list(range(1, 15))
+    supercell_list = list(range(1, 20))
     method = "MP_scheme1_BF164precond"
-    # gpu_list = ["A100"]
-    # gpu_list = ["A100", "A6000"]
     gpu_list = ["A100", "A6000", "L40S"]
 
     # 전체 결과를 하나의 DataFrame으로 생성
