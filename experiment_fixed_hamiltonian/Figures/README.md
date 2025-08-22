@@ -24,9 +24,10 @@ Compared methods: all
 
 ## Figure 2: Time breakdown
 
-- CNT (6, 0)
-
 ```bash
+mkdir Figures_time_breakdown
+
+# CNT (6, 0)
 python plot_breakdown.py \
   --log_dir ../expt.CNT_6_0 \
   --supercell 1_1_5 \
@@ -36,25 +37,19 @@ python plot_breakdown.py \
   --json_out Figures_time_breakdown/time_breakdown.CNT_1_1_5.json \
   --phase fixed \
   --separate_legend
-```
 
-- BaTiO3
-
-```bash
+# MgO
 python plot_breakdown.py \
-  --log_dir ../expt.BaTiO3_2x2x1 \
+  --log_dir ../expt.MgO_1x1x2 \
   --supercell 1_1_5 \
   --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
   --labels 'DP' 'MP1' 'MP6' 'MP1*' \
-  --output Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.svg \
-  --json_out Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.json \
+  --output Figures_time_breakdown/time_breakdown.MgO_1x1x2.svg \
+  --json_out Figures_time_breakdown/time_breakdown.MgO_1x1x2.json \
   --phase fixed \
   --separate_legend
-```
 
-- Si diamond
-
-```bash
+# Si diamond
 python plot_breakdown.py \
   --log_dir ../expt.Si_diamond_2x2x1 \
   --supercell 1_1_4 \
@@ -64,18 +59,15 @@ python plot_breakdown.py \
   --json_out Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.json \
   --phase fixed \
   --separate_legend
-```
 
-- MgO
-
-```bash
+# BaTiO3
 python plot_breakdown.py \
-  --log_dir ../expt.MgO_1x1x2 \
+  --log_dir ../expt.BaTiO3_2x2x1 \
   --supercell 1_1_5 \
   --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
   --labels 'DP' 'MP1' 'MP6' 'MP1*' \
-  --output Figures_time_breakdown/time_breakdown.MgO_1x1x2.svg \
-  --json_out Figures_time_breakdown/time_breakdown.MgO_1x1x2.json \
+  --output Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.svg \
+  --json_out Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.json \
   --phase fixed \
   --separate_legend
 ```

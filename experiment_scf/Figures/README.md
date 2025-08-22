@@ -2,6 +2,8 @@
 
 
 ```bash
+mkdir Figures_time_breakdown
+
 # CNT (6, 0)
 python ../../experiment_fixed_hamiltonian/Figures/plot_breakdown.py \
   --log_dir ../expt.CNT_6_0 \
