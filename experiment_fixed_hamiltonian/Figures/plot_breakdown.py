@@ -246,7 +246,7 @@ def main():
         "--figsize",
         nargs=2,
         type=float,
-        default=[5.5, 4.0],
+        default=[5.0, 4.0],
         help="Figure size (width height)",
     )
     parser.add_argument("--bar_width", type=float, default=0.8, help="Bar width (0-1)")

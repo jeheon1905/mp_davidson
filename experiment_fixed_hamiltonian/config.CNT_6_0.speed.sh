@@ -1,5 +1,5 @@
 # configuration for CNT (6, 0)
-supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17)
 
 system_name=CNT_6_0
 nocc=48

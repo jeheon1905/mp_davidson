@@ -23,11 +23,11 @@ option_names=(
 )
 
 title_names=(
-  "DP" "SP" "MP1*"
+  "FP64" "FP32" "MP1*"
   "MP1" "MP2" "MP3"
   "MP4" "MP5" "MP6"
 
-  "DP" "SP" "MP1*"
+  "FP64" "FP32" "MP1*"
   "MP1" "MP2" "MP3"
   "MP4" "MP5" "MP6"
 )

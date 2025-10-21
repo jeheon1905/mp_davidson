@@ -11,13 +11,14 @@ conda create -n gospel python=3.10 -y
 conda activate gospel
 
 # Install PyTorch (CUDA 11.8 version)
-pip install torch==2.2.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+conda install pytorch=2.2.0 pytorch-cuda=11.8 -c pytorch -c nvidia
 
 # Install dependencies
 pip install numpy==1.26.4     # Torch compatibility (numpy version pinned)
 pip install ase               # Atomic Simulation Environment
 pip install gitpython         # Git interface for Python
 pip install "spglib>=1.16.1"  # Symmetry analysis library
+pip install pandas
 
 # Install GOSPEL (local development mode)
 git clone https://gitlab.com/jhwoo15/gospel.git
@@ -29,7 +30,7 @@ git clone https://gitlab.com/libxc/libxc.git
 cd libxc
 git checkout 6.0.0  # Switch to 6.0.0 tag
 conda install -c conda-forge cmake  # Run this if cmake is not installed
-python setup.py develop  # or: pip install -e .
+python setup.py develop  # or: pip install -e .  # If the cmake version causes the problem, change cmake_minimum_required(VERSION 3.1) to 'VERSION 3.5' in libxc's CMakeLists.txt
 
 # If pylibxc import fails:
 # You may need to add libxc.so* to your library path.

@@ -1,5 +1,5 @@
 # configuration for Si_diamond
-supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11)
+supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16)
 
 system_name=Si_diamond_2x2x1
 nocc=64

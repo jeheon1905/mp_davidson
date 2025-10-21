@@ -18,7 +18,9 @@ Plot convergence history with x-axis of iterations and y-axis of eigenvalue erro
 Compared methods: all
 
 ```bash
-# Not implemented yet.
+# Save figures into ./Figures_convg_histry_SI
+source plot.convg_history.SI.sh
+source merge.convg_history.SI.sh  # merge the history figures to the single figure
 ```
 
 
@@ -32,31 +34,31 @@ python plot_breakdown.py \
   --log_dir ../expt.CNT_6_0 \
   --supercell 1_1_5 \
   --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
-  --labels 'DP' 'MP1' 'MP6' 'MP1*' \
-  --output Figures_time_breakdown/time_breakdown.CNT_1_1_5.svg \
-  --json_out Figures_time_breakdown/time_breakdown.CNT_1_1_5.json \
+  --labels 'FP64' 'MP1' 'MP6' 'MP1*' \
+  --output Figures_time_breakdown/time_breakdown.CNT.1_1_5.svg \
+  --json_out Figures_time_breakdown/time_breakdown.CNT.1_1_5.json \
   --phase fixed \
   --separate_legend
 
 # MgO
 python plot_breakdown.py \
   --log_dir ../expt.MgO_1x1x2 \
-  --supercell 1_1_5 \
+  --supercell 1_1_7 \
   --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
-  --labels 'DP' 'MP1' 'MP6' 'MP1*' \
-  --output Figures_time_breakdown/time_breakdown.MgO_1x1x2.svg \
-  --json_out Figures_time_breakdown/time_breakdown.MgO_1x1x2.json \
+  --labels 'FP64' 'MP1' 'MP6' 'MP1*' \
+  --output Figures_time_breakdown/time_breakdown.MgO_1x1x2.1_1_7.svg \
+  --json_out Figures_time_breakdown/time_breakdown.MgO_1x1x2.1_1_7.json \
   --phase fixed \
   --separate_legend
 
 # Si diamond
 python plot_breakdown.py \
   --log_dir ../expt.Si_diamond_2x2x1 \
-  --supercell 1_1_4 \
+  --supercell 1_1_3 \
   --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
-  --labels 'DP' 'MP1' 'MP6' 'MP1*' \
-  --output Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.svg \
-  --json_out Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.json \
+  --labels 'FP64' 'MP1' 'MP6' 'MP1*' \
+  --output Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.1_1_3.svg \
+  --json_out Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.1_1_3.json \
   --phase fixed \
   --separate_legend
 
