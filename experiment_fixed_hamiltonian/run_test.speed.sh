@@ -37,6 +37,7 @@ for n in "${supercell_sizes[@]}"; do
       $additional_options \
       --nbands $nbands \
       --supercell $cell \
+      --measure-mem \
       $opt > ${prefix}.speed.log 2>&1"
 
     echo "Running: $prefix"

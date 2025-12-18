@@ -7,8 +7,8 @@ This project is based on GOSPEL, a real-space DFT code.
 Follow the steps below to set up the required environment.
 ```bash
 # Create and activate a conda environment
-conda create -n gospel python=3.10 -y
-conda activate gospel
+conda create -n mp_davidson python=3.10 -y
+conda activate mp_davidson
 
 # Install PyTorch (CUDA 11.8 version)
 conda install pytorch=2.2.0 pytorch-cuda=11.8 -c pytorch -c nvidia
@@ -42,8 +42,7 @@ This project uses a customized version of GOSPEL.
 Make sure to use the following Git state:
 
 - **Branch**: `multi_gpu`
-- **Commit**: `e05eae9c9f9b00b11013e19fe6ff95a5dcc83cc9`
-
+- **Commit**: `920cb06ee440e2857877b52fcfd149db98029516`
 
 ## Tests
 This section describes how to run the available tests and interpret their results.

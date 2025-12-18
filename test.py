@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import os
+import gc
 import sys
 import torch
 import numpy as np
@@ -10,6 +11,70 @@ from gospel.ParallelHelper import ParallelHelper as PH
 from gospel.Eigensolver.precondition import create_preconditioner
 from gospel.util import Timer, set_global_seed
 from mp_davidson.utils import make_atoms, get_git_commit, block_all_print
+
+
+def _cuda_sync():
+    """
+    Synchronize the current CUDA device.
+
+    This forces all queued asynchronous CUDA operations to complete,
+    ensuring that subsequent GPU memory statistics (allocated / peak)
+    reflect the actual state after computation.
+    """
+    if torch.cuda.is_available() and torch.cuda.is_initialized():
+        torch.cuda.synchronize()
+
+
+def _mem_reset(args: argparse.Namespace) -> None:
+    """
+    Reset CUDA peak memory statistics if memory measurement is enabled.
+
+    This should be called immediately before a code section for which
+    peak GPU memory usage needs to be measured. The reset is only
+    performed when:
+      - --measure-mem is enabled,
+      - CUDA is requested and available.
+    """
+    if getattr(args, "measure_mem", False) and args.use_cuda and torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+
+
+def _mem_report(tag: str, args: argparse.Namespace) -> None:
+    """
+    Print current and peak GPU memory usage for a labeled code section.
+
+    Reports:
+      - current allocated memory,
+      - current reserved memory (CUDA caching allocator),
+      - peak allocated memory since the last reset,
+      - peak reserved memory since the last reset.
+
+    The report is printed only when:
+      - --measure-mem is enabled,
+      - CUDA is requested and initialized.
+
+    Parameters
+    ----------
+    tag : str
+        Label identifying the computation stage (e.g. 'after initialize',
+        'davidson diagonalization').
+    args : argparse.Namespace
+        Parsed command-line arguments containing the 'measure_mem' flag.
+    """
+    if not (getattr(args, "measure_mem", False) and args.use_cuda):
+        return
+    if not (torch.cuda.is_available() and torch.cuda.is_initialized()):
+        return
+    _cuda_sync()
+    cur_alloc = torch.cuda.memory_allocated()
+    cur_resv = torch.cuda.memory_reserved()
+    peak_alloc = torch.cuda.max_memory_allocated()
+    peak_resv = torch.cuda.max_memory_reserved()
+    print(
+        f"[GPU MEM] {tag} | "
+        f"cur_alloc={cur_alloc/1024**3:.2f}GiB, cur_resv={cur_resv/1024**3:.2f}GiB | "
+        f"peak_alloc={peak_alloc/1024**3:.2f}GiB, peak_resv={peak_resv/1024**3:.2f}GiB"
+    )
 
 
 def main(args: argparse.Namespace) -> None:
@@ -85,6 +150,9 @@ def main(args: argparse.Namespace) -> None:
     atoms.calc = calc
     calc.initialize(atoms)
 
+    _mem_report('after calc.initialize', args)
+    _mem_reset(args)
+
     # NOTE: Make preconditioner
     precond_options = {
         "precond_type": "shift-and-invert",
@@ -103,7 +171,9 @@ def main(args: argparse.Namespace) -> None:
 
     # NOTE: SCF calculation
     if args.phase == "scf":
+        _mem_reset(args)
         energy = atoms.get_potential_energy()
+        _mem_report("SCF atoms.get_potential_energy", args)
 
         # Save the converged density
         if args.density_filename is not None:
@@ -182,6 +252,7 @@ def main(args: argparse.Namespace) -> None:
 
         # Reset initialization time records (only measure diagonalization times)
         Timer.reset()
+        _mem_reset(args)
 
         # Diagonalization
         results = davidson(
@@ -203,6 +274,7 @@ def main(args: argparse.Namespace) -> None:
             MP_scheme=args.MP_scheme,
             debug_recalc_convg_history=args.recalc_convg_history,
         )
+        _mem_report('Fixed davidson diagonalization', args)
         del calc
 
         # NOTE: Save residual history
@@ -400,6 +472,11 @@ if __name__ == "__main__":
         default=1,
         help="whether to warm up the GPU (0=False, 1=True)",
     )
+    parser.add_argument(
+        "--measure-mem",
+        action="store_true",
+        help="Measure and report GPU peak memory (allocated/reserved) for key stages",
+    )
     args = parser.parse_args()
     print(f"datetime: {datetime.datetime.now()}")
     print(f"GOSPEL git commit: {get_git_commit('gospel')}")
@@ -425,12 +502,17 @@ if __name__ == "__main__":
     else:
         torch.backends.cuda.matmul.allow_tf32 = False
 
-    # Warm up
+    # Warm up: run once to initialize CUDA context, kernels, and libraries
     if args.warmup:
         with block_all_print():
             main(args)
         print("Warm-up finished")
 
+    # Reset CUDA peak memory statistics
+    gc.collect()
+    _mem_reset(args)
+
+    # Run the actual measurement
     Timer.reset()
     main(args)
     Timer.print_summary()
