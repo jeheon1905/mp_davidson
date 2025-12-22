@@ -1,5 +1,5 @@
 # configuration for MgO
-supercell_sizes=(1 2 3 4 5 6 7 8 9 10)
+supercell_sizes=(1 5 10)
 
 system_name=MgO_1x1x2
 nocc=64
