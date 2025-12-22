@@ -61,17 +61,6 @@ python plot_breakdown.py \
   --json_out Figures_time_breakdown/time_breakdown.Si_diamond_2x2x1.1_1_3.json \
   --phase fixed \
   --separate_legend
-
-# BaTiO3
-python plot_breakdown.py \
-  --log_dir ../expt.BaTiO3_2x2x1 \
-  --supercell 1_1_5 \
-  --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
-  --labels 'DP' 'MP1' 'MP6' 'MP1*' \
-  --output Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.svg \
-  --json_out Figures_time_breakdown/time_breakdown.BaTiO3_2x2x1.json \
-  --phase fixed \
-  --separate_legend
 ```
 
 
@@ -83,3 +72,19 @@ Plot performance enhancements of three different systems with x-axis of the numb
 source make_csv.sh
 python plot_performance_vs_size.py
 ```
+
+
+## Figure: Time breakdown of preconditioning
+```bash
+# CNT (6, 0)
+python plot_breakdown.py \
+  --log_dir ../expt.CNT_6_0 \
+  --supercell 1_1_5 \
+  --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
+  --labels 'FP64' 'MP1' 'MP6' 'MP1*' \
+  --output Figures_time_breakdown/time_breakdown_precond.CNT.1_1_5.svg \
+  --json_out Figures_time_breakdown/time_breakdown_precond.CNT.1_1_5.json \
+  --phase preconditioning \
+  --separate_legend
+```
+

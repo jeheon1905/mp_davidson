@@ -99,6 +99,9 @@ def aggregate_timing_by_category(breakdown, category_map, phase):
             + breakdown["GOSPEL.initialize"]
             - sum_of_categories
         )
+    elif phase == "preconditioning":
+        # Total preconditioning time is measured by the 'Preconditioning' timer
+        etc_time = breakdown["Preconditioning"] - sum_of_categories
     else:
         raise ValueError(f"Unknown phase: {phase}")
     aggregated["ETC"] = etc_time
@@ -156,6 +159,8 @@ def plot_accumulated_histogram(
         ax.set_ylabel("Diag. time (sec)")
     elif phase == "scf":
         ax.set_ylabel("SCF time (sec)")
+    elif phase == "preconditioning":
+        ax.set_ylabel("Preconditioning time (sec)")
     else:
         raise ValueError
 
@@ -237,7 +242,7 @@ def main():
         type=str,
         default="fixed",
         help="calculation type",
-        choices=["fixed", "scf"],
+        choices=["fixed", "scf", "preconditioning"],
     )
     parser.add_argument(
         "--font_size", type=int, default=18, help="Base font size for all plot elements"
@@ -255,6 +260,12 @@ def main():
     )
     parser.add_argument(
         "--legend_cols", type=int, default=3, help="Number of columns in legend"
+    )
+    parser.add_argument(
+        "--log_suffix",
+        type=str,
+        default=".speed.log",
+        help="Log filename suffix. Default: .speed.log (e.g., 1_1_8_DP.speed.log)",
     )
     args = parser.parse_args()
 
@@ -276,6 +287,28 @@ def main():
             "Diagonalization": "tab:blue",
             "Initialization": "tab:red",
             "Calc. potential and energy": "tab:pink",
+            "ETC": "gray",
+        }
+    elif args.phase == "preconditioning":
+        # Detailed breakdown inside the Preconditioning timer
+        category_map = {
+            "Hamiltonian op.": ["ISI. (H - e)x"],
+            "ISI. precond": ["ISI. precond"],
+            "ISI. update search direction": ["ISI. update search direction"],
+            "ISI. update x0 and r": ["ISI. update x0 and r"],
+            "ISI. r.T @ z": ["ISI. r.T @ z"],
+            "ISI. calc alpha": ["ISI. calc alpha"],
+            # "ISI. norm": ["ISI. norm"],
+        }
+
+        category_colors = {
+            "Hamiltonian op.": "tab:blue",
+            "ISI. precond": "tab:red",
+            "ISI. update search direction": "tab:pink",
+            "ISI. update x0 and r": "tab:brown",
+            "ISI. r.T @ z": "tab:green",
+            "ISI. calc alpha": "tab:purple",
+            # "ISI. norm": "tab:orange",
             "ETC": "gray",
         }
     else:
@@ -307,12 +340,13 @@ def main():
     # Process each log
     aggregated_results = []
     for method in args.methods:
-        if args.phase == "fixed":
-            log_path = os.path.join(
-                args.log_dir, f"{args.supercell}_{method}.speed.log"
-            )
+        if args.phase in ("fixed", "preconditioning"):
+            if not args.log_suffix == ".speed.log":
+                print("Warning: args.log_suffix={args.log_suffix}")
         else:
-            log_path = os.path.join(args.log_dir, f"{args.supercell}_{method}.log")
+            if not args.log_suffix == ".log":
+                print("Warning: args.log_suffix={args.log_suffix}")
+        log_path = os.path.join(args.log_dir, f"{args.supercell}_{method}{args.log_suffix}")
         raw = parse_log_file(log_path)
         agg = aggregate_timing_by_category(raw, category_map, phase=args.phase)
         aggregated_results.append(agg)

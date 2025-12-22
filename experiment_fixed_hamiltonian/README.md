@@ -19,7 +19,6 @@ This directory includes configuration files for running **diagonalization tests*
 - CNT (6, 0)
 - MgO (fcc)
 - Si (diamond)
-- BaTiO₃ (perovskite)
 
 ---
 
@@ -30,18 +29,15 @@ This directory includes configuration files for running **diagonalization tests*
 source run_test.sh experiment_fixed_hamiltonian/config.CNT_6_0.sh
 source run_test.sh experiment_fixed_hamiltonian/config.MgO.sh
 source run_test.sh experiment_fixed_hamiltonian/config.Si_diamond.sh
-source run_test.sh experiment_fixed_hamiltonian/config.BaTiO3.sh
 
 # Plot convergence history
 source plot.sh experiment_fixed_hamiltonian/config.CNT_6_0.sh
 source plot.sh experiment_fixed_hamiltonian/config.MgO.sh
 source plot.sh experiment_fixed_hamiltonian/config.Si_diamond.sh
-source plot.sh experiment_fixed_hamiltonian/config.BaTiO3.sh
 
 # 2. Speed test
 source run_test.speed.sh experiment_fixed_hamiltonian/config.CNT_6_0.speed.sh
 source run_test.speed.sh experiment_fixed_hamiltonian/config.MgO.speed.sh
 source run_test.speed.sh experiment_fixed_hamiltonian/config.Si_diamond.speed.sh
-source run_test.speed.sh experiment_fixed_hamiltonian/config.BaTiO3.speed.sh
 ```
 
