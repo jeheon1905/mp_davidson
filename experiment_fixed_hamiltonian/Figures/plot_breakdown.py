@@ -292,22 +292,24 @@ def main():
     elif args.phase == "preconditioning":
         # Detailed breakdown inside the Preconditioning timer
         category_map = {
+            # "ISI. precond": ["ISI. precond"],
+            "GAPP": ["ISI. precond"],
             "Hamiltonian op.": ["ISI. (H - e)x"],
-            "ISI. precond": ["ISI. precond"],
-            "ISI. update search direction": ["ISI. update search direction"],
-            "ISI. update x0 and r": ["ISI. update x0 and r"],
-            "ISI. r.T @ z": ["ISI. r.T @ z"],
-            "ISI. calc alpha": ["ISI. calc alpha"],
+            "update search direction": ["ISI. update search direction"],
+            "update x0 and r": ["ISI. update x0 and r"],
+            "r.T @ z": ["ISI. r.T @ z"],
+            "calc alpha": ["ISI. calc alpha"],
             # "ISI. norm": ["ISI. norm"],
         }
 
         category_colors = {
-            "Hamiltonian op.": "tab:blue",
-            "ISI. precond": "tab:red",
-            "ISI. update search direction": "tab:pink",
-            "ISI. update x0 and r": "tab:brown",
-            "ISI. r.T @ z": "tab:green",
-            "ISI. calc alpha": "tab:purple",
+            # "ISI. precond": "tab:blue",
+            "GAPP": "tab:blue",
+            "Hamiltonian op.": "tab:red",
+            "update search direction": "tab:pink",
+            "update x0 and r": "tab:brown",
+            "r.T @ z": "tab:green",
+            "calc alpha": "tab:purple",
             # "ISI. norm": "tab:orange",
             "ETC": "gray",
         }

@@ -73,7 +73,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--num_eig",
         type=int,
-        help="number of eigenvalues (default to None)",
+        help="number of occupied eigenvalues (default to None)",
+        required=False,
+        default=None,
+    )
+    parser.add_argument(
+        "--num_virt",
+        type=int,
+        help="number of virtual eigenvalues to plot in addition to occupied states (default to None)",
         required=False,
         default=None,
     )
@@ -120,6 +127,13 @@ if __name__ == "__main__":
         required=False,
         default=[3.6, 4.2],
     )
+    parser.add_argument(
+        "--diag_iter",
+        type=int,
+        help="number of diagonalization iterations to plot (default to all available iterations)",
+        required=False,
+        default=None,
+    )
     args = parser.parse_args()
 
     # set up plot style
@@ -127,7 +141,7 @@ if __name__ == "__main__":
 
     eigvalHistory, resHistory = torch.load(args.filepath)
 
-    ## TODO: replace eigvalHistory[-1] with the true eigenvalues (from DP calculation)
+    ## Set reference eigenvalues
     if args.ref_filepath is not None:
         eigvalHistory_ref, _ = torch.load(args.ref_filepath)
         ref_eigval = eigvalHistory_ref[-1]
@@ -136,13 +150,22 @@ if __name__ == "__main__":
     eigvalHistory = abs(torch.stack(eigvalHistory) - ref_eigval)
 
     if args.num_eig:
+        num_total = args.num_eig + (args.num_virt if args.num_virt else 0)
         eigvalHistory = torch.stack(
-            [eigval[: args.num_eig] for eigval in eigvalHistory]
+            [eigval[:num_total] for eigval in eigvalHistory]
         )
-        resHistory = torch.stack([res[: args.num_eig] for res in resHistory])
+        resHistory = torch.stack([res[:num_total] for res in resHistory])
+    elif args.num_virt:
+        # if only num_virt is specified, use all available states
+        pass
 
     eigvalHistory = eigvalHistory.to(torch.float64)
     resHistory = resHistory.to(torch.float64)
+
+    # Apply diag_iter to limit iterations if specified
+    if args.diag_iter is not None:
+        eigvalHistory = eigvalHistory[: args.diag_iter]
+        resHistory = resHistory[: args.diag_iter]
 
     iterationNumber = len(resHistory)
     i_iter = np.arange(1, iterationNumber + 1)
@@ -167,10 +190,26 @@ if __name__ == "__main__":
     if args.title is not None:
         plt.title(args.title)
     plt.grid(True, which="both", ls="-", alpha=0.2)
-    plot_options = {"color": "k", "linestyle": "-", "linewidth": linewidth}
-    for i, res in enumerate(result):
-        alpha = 1.0 / len(result) * (i + 1)
-        plt.plot(i_iter, res, **plot_options, alpha=alpha)
+
+    # Determine the split point between occupied and virtual states
+    num_occ = args.num_eig if args.num_eig else len(result)
+    num_virt = args.num_virt if args.num_virt else 0
+
+    # Plot occupied states (black)
+    plot_options_occ = {"color": "k", "linestyle": "-", "linewidth": linewidth}
+    for i in range(min(num_occ, len(result))):
+        res = result[i]
+        alpha = 1.0 / num_occ * (i + 1)
+        plt.plot(i_iter, res, **plot_options_occ, alpha=alpha)
+
+    # Plot virtual states (red)
+    if num_virt > 0 and len(result) > num_occ:
+        plot_options_virt = {"color": "r", "linestyle": "-", "linewidth": linewidth}
+        num_virt_actual = min(num_virt, len(result) - num_occ)
+        for i in range(num_occ, num_occ + num_virt_actual):
+            res = result[i]
+            alpha = 1.0 / num_virt_actual * (i - num_occ + 1)
+            plt.plot(i_iter, res, **plot_options_virt, alpha=alpha)
 
     plt.xlabel("Iteration")
     plt.ylabel(ylabel)

@@ -23,6 +23,15 @@ source plot.convg_history.SI.sh
 source merge.convg_history.SI.sh  # merge the history figures to the single figure
 ```
 
+```bash
+# with virtual states
+# Save figures into ./Figures_convg_history_add_virtual
+source plot.convg_history.add_virtual.sh experiment_fixed_hamiltonian/config.CNT_6_0.add_virtual.sh
+source plot.convg_history.add_virtual.sh experiment_fixed_hamiltonian/config.MgO.add_virtual.sh
+source plot.convg_history.add_virtual.sh experiment_fixed_hamiltonian/config.Si_diamond.add_virtual.sh
+source merge.convg_history.add_virtual.sh  # merge the history figures to the single figure (TODO: implement)
+```
+
 
 ## Figure 2: Time breakdown
 
@@ -64,16 +73,6 @@ python plot_breakdown.py \
 ```
 
 
-## Figure 3: performance enhancements as a function of system sizes
-
-Plot performance enhancements of three different systems with x-axis of the number of atoms and y-axis of performance enhancements.
-
-```bash
-source make_csv.sh
-python plot_performance_vs_size.py
-```
-
-
 ## Figure: Time breakdown of preconditioning
 ```bash
 # CNT (6, 0)
@@ -108,5 +107,19 @@ python plot_breakdown.py \
   --json_out Figures_time_breakdown/time_breakdown_precond.Si_diamond_2x2x1.1_1_3.json \
   --phase preconditioning \
   --separate_legend
+```
+
+
+## Figure 3: performance enhancements as a function of system sizes
+
+Plot performance enhancements of three different systems with x-axis of the number of atoms and y-axis of performance enhancements.
+
+```bash
+# Extract time breakdown from log files. (saved to .csv_results_A100/)
+source make_csv.sh
+python plot_performance_vs_size.py
+
+# Extract peak memory (GiB) from log files. (saved to peak_alloc_results.csv)
+python extract_peak_alloc.py
 ```
 
