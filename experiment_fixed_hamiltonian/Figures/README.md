@@ -86,5 +86,27 @@ python plot_breakdown.py \
   --json_out Figures_time_breakdown/time_breakdown_precond.CNT.1_1_5.json \
   --phase preconditioning \
   --separate_legend
+
+# MgO
+python plot_breakdown.py \
+  --log_dir ../expt.MgO_1x1x2 \
+  --supercell 1_1_7 \
+  --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
+  --labels 'FP64' 'MP1' 'MP6' 'MP1*' \
+  --output Figures_time_breakdown/time_breakdown_precond.MgO_1x1x2.1_1_7.svg \
+  --json_out Figures_time_breakdown/time_breakdown_precond.MgO_1x1x2.1_1_7.json \
+  --phase preconditioning \
+  --separate_legend
+
+# CNT (6, 0)
+python plot_breakdown.py \
+  --log_dir ../expt.Si_diamond_2x2x1 \
+  --supercell 1_1_3 \
+  --methods DP MP_scheme1 DP_SP4precond MP_scheme1_BF164precond \
+  --labels 'FP64' 'MP1' 'MP6' 'MP1*' \
+  --output Figures_time_breakdown/time_breakdown_precond.Si_diamond_2x2x1.1_1_3.svg \
+  --json_out Figures_time_breakdown/time_breakdown_precond.Si_diamond_2x2x1.1_1_3.json \
+  --phase preconditioning \
+  --separate_legend
 ```
 

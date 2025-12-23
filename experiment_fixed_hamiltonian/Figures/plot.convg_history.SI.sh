@@ -77,7 +77,7 @@ for system_name in "${SYSTEMS[@]}"; do
 
       prefix="${save_dir}/${cell_name}_${opt_name}"
       retHistory_file="${prefix}.pt"
-      refHistory_file="${save_dir}/${cell_name}_DP.pt"
+      refHistory_file="${save_dir}/${cell_name}_DP_ref.pt"
 
       if [[ ! -f "${retHistory_file}" ]]; then
         echo "  [WARN] Missing history file: ${retHistory_file} (skip ${opt_name})"

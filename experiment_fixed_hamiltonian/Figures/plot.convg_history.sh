@@ -45,7 +45,7 @@ for n in "${supercell_sizes[@]}"; do
 
     prefix="${save_dir}/${cell_name}_${opt_name}"
     retHistory_file="${prefix}.pt"
-    refHistory_file="${save_dir}/${cell_name}_DP.pt"
+    refHistory_file="${save_dir}/${cell_name}_DP_ref.pt"
     echo "  Option: $opt_name"
     echo "    Loading file: ${retHistory_file}"
 
