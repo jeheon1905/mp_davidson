@@ -117,11 +117,12 @@ python plot_breakdown.py \
 Plot performance enhancements of three different systems with x-axis of the number of atoms and y-axis of performance enhancements.
 
 ```bash
-# Extract time breakdown from log files. (saved to .csv_results_A100/)
+# Extract time breakdown from log files. (saved into .csv_results_A100/)
 source make_csv.sh
-python plot_performance_vs_size.py
+python plot_performance_vs_size.py  # figures are saved into ./Figures_performance_vs_size
 
-# Extract peak memory (GiB) from log files. (saved to peak_alloc_results.csv)
+# Extract peak memory (GiB) from log files. (saved as peak_alloc_results.csv)
 python extract_peak_alloc.py
+python plot_peak_memory.py  # figures are saved into ./Figures_peak_memory
 ```
 

@@ -1,8 +1,8 @@
 """
 Performance enhancement of MP1*.
 
-x-axis: the number of atoms
-y-axis: speedups
+x-axis: Number of atoms
+y-axis: Speedup or Diag. time
 legend: different GPUs
 subfigure: systems
 """
@@ -388,8 +388,8 @@ if __name__ == "__main__":
     # Global style
     setup_plot_style(base_font_size=28)
     figsize = (10, 7)
-    show = True
-    show =False 
+    # show = True
+    show = False
 
     system_name_list = ["CNT_6_0", "MgO_1x1x2", "Si_diamond_2x2x1"]
     supercell_list = list(range(1, 23))
