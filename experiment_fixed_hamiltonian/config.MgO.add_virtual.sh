@@ -21,24 +21,18 @@ unocc_ratio=1.10
 
 # Define the array of options
 options=(
-  # "--fp DP"
-  # "--fp SP --multi_dtype DP SP --precond_fp SP"
-  # "--fp DP --multi_dtype DP SP --precond_fp SP"
-  # "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 1"
   "--fp DP --recalc_convg_history"
   "--fp SP --multi_dtype DP SP --precond_fp SP --recalc_convg_history"
-  "--fp DP --multi_dtype DP SP --precond_fp SP --recalc_convg_history"
   "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 1 --recalc_convg_history"
-
-  # MP using SP + precond using BF16
-  # "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 1 --MP_dtype SP"
+  "--fp DP --multi_dtype DP SP --precond_fp SP --recalc_convg_history"
   "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 1 --MP_dtype SP --recalc_convg_history"
 )
 
 # Define the array of option names corresponding to the above options
 option_names=(
-  # "DP" "SP" "DP_SP4precond" "MP_scheme1"
-  "DP.recalc_convg_history" "SP.recalc_convg_history" "DP_SP4precond.recalc_convg_history" "MP_scheme1.recalc_convg_history"
-  # "MP_scheme1_BF164precond"
+  "DP.recalc_convg_history"
+  "SP.recalc_convg_history"
+  "MP_scheme1.recalc_convg_history"
+  "DP_SP4precond.recalc_convg_history"
   "MP_scheme1_BF164precond.recalc_convg_history"
 )

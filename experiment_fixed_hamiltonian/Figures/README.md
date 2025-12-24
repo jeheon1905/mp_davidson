@@ -5,7 +5,7 @@ After peforming speed tests at `expeirment_fixed_hamiltnoian/`, plot figures.
 ## Figure 1 and Figure S1
 
 Plot convergence history with x-axis of iterations and y-axis of eigenvalue errors or residual norm.
-Compared methods: DP, SP, MP1, MP2, MP3, MP4, MP5, MP6, MP1*
+Compared methods: FP64, FP32, MP1, MP2, MP3, MP4, MP5, MP6, MP1*
 
 ```bash
 # Save figures into ./Figures_convg_history
@@ -23,13 +23,15 @@ source plot.convg_history.SI.sh
 source merge.convg_history.SI.sh  # merge the history figures to the single figure
 ```
 
+Plot convergence history including virtual states with x-axis of iterations and y-axis of eigenvalue errors or residual norm.
+Compared methods: FP64, FP32, MP1, MP6, MP1*
+
 ```bash
-# with virtual states
 # Save figures into ./Figures_convg_history_add_virtual
 source plot.convg_history.add_virtual.sh experiment_fixed_hamiltonian/config.CNT_6_0.add_virtual.sh
 source plot.convg_history.add_virtual.sh experiment_fixed_hamiltonian/config.MgO.add_virtual.sh
 source plot.convg_history.add_virtual.sh experiment_fixed_hamiltonian/config.Si_diamond.add_virtual.sh
-source merge.convg_history.add_virtual.sh  # merge the history figures to the single figure (TODO: implement)
+source merge.convg_history.add_virtual.sh  # merge the history figures to the single figure
 ```
 
 

@@ -230,9 +230,8 @@ def main():
     parser.add_argument("files", nargs="+", help="SVG files to merge (order matters)")
     parser.add_argument("--rows", type=int, default=3, help="Grid rows (default 3)")
     parser.add_argument("--cols", type=int, default=8, help="Grid cols (default 8)")
-    parser.add_argument("--empty", type=parse_rc, action="append",
-                        default=[(1, 0), (2, 1)],
-                        help="Empty cells as 'row,col'. Can repeat. Default: 1,0 and 2,1")
+    parser.add_argument("--empty", type=parse_rc, action="append", default=None,
+                        help="Empty cells as 'row,col'. Can repeat. Default: 1,0 and 2,1 for 3x8 grid, none otherwise")
     parser.add_argument("--cell-size", type=int, nargs=2, metavar=("W", "H"),
                         default=[400, 300], help="Cell size in px (default 400 300)")
     parser.add_argument("--gutter", type=int, nargs=2, metavar=("GX", "GY"),
@@ -262,6 +261,10 @@ def main():
                         help="Scale factor for PNG (CairoSVG only).")
 
     args = parser.parse_args()
+
+    # Handle empty cells default
+    if args.empty is None:
+        args.empty = []
 
     rows, cols = args.rows, args.cols
     for r, c in args.empty:
