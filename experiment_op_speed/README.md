@@ -29,11 +29,13 @@ The shell script `test.operation.sh` automates batch execution of `test_op_time.
 
 ▶️ To Run:
 ```bash
-source ./test.operation.CNT_6_0.sh &> results/CNT_6_0.A100.log
-source ./test.operation.MgO_1x1x2.sh &> results/MgO_1x1x2.A100.log
-source ./test.operation.Si_diamond_2x2x1.sh &> results/Si_diamond_2x2x1.A100.log
+DEVICE="A100"
+# DEVICE="RTX4090"
+source ./test.operation.CNT_6_0.sh &> results/CNT_6_0.${DEVICE}.log
+source ./test.operation.MgO_1x1x2.sh &> results/MgO_1x1x2.${DEVICE}.log
+source ./test.operation.Si_diamond_2x2x1.sh &> results/Si_diamond_2x2x1.${DEVICE}.log
 
-python print_table results/MgO_1x1x2.A100.log
+python print_table results/MgO_1x1x2.${DEVICE}.log
 ```
 
 
