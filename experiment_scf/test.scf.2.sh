@@ -20,8 +20,8 @@ use_cuda=1
 diag_iter=2
 precond_iter=5
 fixed_convg_tol=1e-3
-scf_energy_tol=1e-6
-scf_density_tol=1e-4
+scf_energy_tol=1e-7
+scf_density_tol=1e-5
 
 phase=scf
 

@@ -133,7 +133,7 @@ def main(args: argparse.Namespace) -> None:
         xc={"type": "gga_x_pbe + gga_c_pbe"},
         convergence={
             "scf_maxiter": 100,
-            "density_tol": np.inf,
+            "density_tol": args.scf_density_tol,
             "orbital_energy_tol": np.inf,
             "energy_tol": args.scf_energy_tol,  # only check this for SCF convergence
         },
@@ -146,6 +146,7 @@ def main(args: argparse.Namespace) -> None:
             "use_dense_kinetic": args.use_dense_kinetic,
             "multi_dtype": args.multi_dtype,
         },
+        random_seed=args.seed,
     )
     atoms.calc = calc
     calc.initialize(atoms)
@@ -369,8 +370,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "--scf_energy_tol",
         type=float,
-        default=0.0001,
+        default=1e-6,
         help="scf convergence energy tolerance (Hartree / electron)",
+    )
+    parser.add_argument(
+        "--scf_density_tol",
+        # type=float,
+        type=lambda x: np.inf if x.lower() == 'inf' else float(x),
+        default=1e-4,
+        help="SCF density tolerance (/electron); use 'inf' to disable",
     )
     parser.add_argument(
         "--fixed_convg_tol",
