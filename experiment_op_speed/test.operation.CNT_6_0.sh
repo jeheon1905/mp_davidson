@@ -24,7 +24,7 @@ options=(
     "--fp DP --use_dense_proj"
     "--fp SP --use_dense_proj"
     "--fp SP --allow_tf32 --use_dense_proj"
-    "--fp HP --use_dense_proj"
+    # "--fp HP --use_dense_proj"
     "--fp BF16 --use_dense_proj"
 )
 operation="projection kinetic local nonlocal tensordot"

@@ -1,13 +1,14 @@
 #!/bin/bash
 
-supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14)
-supercell_sizes=(1)  # NOTE: DEBUG
-supercell_sizes=(5)  # NOTE: DEBUG
-supercell_sizes=(1 3 5 7 9 11)
+# supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14)
+# supercell_sizes=(1 3 5 7 9 11 13 15 17 19)
+# supercell_sizes=(1 3 5 7 9 11) # 9 11 13 15 17 19)
+supercell_sizes=(1 3 5 7 9 11 13)
 
-system_name=CNT_6_0
-nocc=48
-system_options="--filepath ../data/systems/${system_name}.cif --pbc 0 0 1"
+# TEST Si_diamond
+system_name=Si_diamond_2x2x1
+nocc=64
+system_options="--filepath ../data/systems/${system_name}.cif --pbc 1 1 1"
 
 use_cuda=1
 spacing=0.15
@@ -25,7 +26,7 @@ options=(
     "--fp DP --use_dense_proj"
     "--fp SP --use_dense_proj"
     "--fp SP --allow_tf32 --use_dense_proj"
-    "--fp HP --use_dense_proj"
+    # "--fp HP --use_dense_proj"
     "--fp BF16 --use_dense_proj"
 )
 operation="projection kinetic local nonlocal tensordot"
@@ -45,3 +46,4 @@ for n in "${supercell_sizes[@]}"; do
     eval $cmd
   done
 done
+

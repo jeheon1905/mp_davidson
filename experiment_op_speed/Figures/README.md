@@ -2,7 +2,9 @@
 
 
 ```bash
-python plot_performance.py ../results/MgO_1x1x2.A100.log \
+DEVICE="A100"
+# DEVICE="RTX4090"
+python plot_performance.py ../results/MgO_1x1x2.${DEVICE}.log \
     --xscale linear \
     --font-size-title 20 \
     --font-size-label 16 \
@@ -14,7 +16,5 @@ python plot_performance.py ../results/MgO_1x1x2.A100.log \
     --use-dense-proj \
     --xscale linear \
     --yscale-dp-time log
-
 ```
-
 

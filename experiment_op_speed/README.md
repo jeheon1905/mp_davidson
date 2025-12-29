@@ -9,7 +9,7 @@ The script `test_op_time.py` measures the **execution time of each operation** i
 ### Usage example
 
 ```bash
-python test_op_time.py --filepath ../data/systems/BaTiO3_2x2x1.cif --pbc 1 1 1 \
+python test_op_time.py --filepath ../data/systems/MgO_1x1x2.cif --pbc 1 1 1 \
        --nbands 100 --supercell 1 1 5 \
        --fp SP --use_dense_proj \
        --operation projection kinetic local nonlocal tensordot
@@ -29,8 +29,11 @@ The shell script `test.operation.sh` automates batch execution of `test_op_time.
 
 ▶️ To Run:
 ```bash
-source ./test.operation.sh &> results/MgO.A100.log
-python print_table results/MgO.A100.log
+source ./test.operation.CNT_6_0.sh &> results/CNT_6_0.A100.log
+source ./test.operation.MgO_1x1x2.sh &> results/MgO_1x1x2.A100.log
+source ./test.operation.Si_diamond_2x2x1.sh &> results/Si_diamond_2x2x1.A100.log
+
+python print_table results/MgO_1x1x2.A100.log
 ```
 
 
