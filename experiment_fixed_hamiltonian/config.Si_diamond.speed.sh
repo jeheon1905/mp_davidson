@@ -26,6 +26,7 @@ options=(
   "--fp SP --multi_dtype DP SP --precond_fp SP"
   "--fp DP --multi_dtype DP SP --precond_fp SP"
   "--fp MP --multi_dtype DP SP --precond_fp SP --MP_scheme 1"
+
   # MP using SP + precond using BF16
   "--fp MP --multi_dtype DP SP BF16 --precond_fp BF16 --MP_scheme 1 --MP_dtype SP"
 )

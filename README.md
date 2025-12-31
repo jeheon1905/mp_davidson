@@ -43,7 +43,7 @@ This project uses a customized version of GOSPEL.
 Make sure to use the following Git state:
 
 - **Branch**: `multi_gpu`
-- **Commit**: `920cb06ee440e2857877b52fcfd149db98029516`
+- **Commit**: `a2dfd1a3b42cf28201e834d4b935eef5973465a8`
 
 ## Tests
 This section describes how to run the available tests and interpret their results.
