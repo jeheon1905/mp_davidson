@@ -49,7 +49,7 @@ for seed in "${seeds[@]}"; do
             --diag_iter $diag_iter \
             --fixed_convg_tol $fixed_convg_tol \
             --scf_energy_tol $scf_energy_tol \
-	    --scf_density_tol $scf_density_tol"
+            --scf_density_tol $scf_density_tol"
 
     # Run standard calculations
     for idx in "${!options[@]}"; do
@@ -71,29 +71,32 @@ for seed in "${seeds[@]}"; do
       eval $cmd
     done
 
-    # Reference calculation (DP with tighter thresholds)
-    calc_options_ref="$base_calc_options \
-          --diag_iter 11 \
-          --fixed_convg_tol $(awk "BEGIN {print $fixed_convg_tol * 0.1}") \
-          --scf_energy_tol $(awk "BEGIN {print $scf_energy_tol * 0.1}") \
-          --scf_density_tol $(awk "BEGIN {print $scf_density_tol * 0.1}") \
-          --seed $seed"
-    opt="--fp DP"
-    opt_name="DP_ref"
+    # Reference calculation (DP with tighter thresholds) - only for seed 42
+    if [ "$seed" -eq 42 ]; then
+      calc_options_ref="$base_calc_options \
+            --warmup 0 \
+            --diag_iter 11 \
+            --fixed_convg_tol $(awk "BEGIN {print $fixed_convg_tol * 0.01}") \
+            --scf_energy_tol $(awk "BEGIN {print $scf_energy_tol * 0.01}") \
+            --scf_density_tol $(awk "BEGIN {print $scf_density_tol * 0.01}") \
+            --seed $seed"
+      opt="--fp DP"
+      opt_name="DP_ref"
 
-    prefix="${save_dir}/${cell_name}_${opt_name}"
-    mkdir -p "$(dirname $prefix)"
+      prefix="${save_dir}/${cell_name}_${opt_name}"
+      mkdir -p "$(dirname $prefix)"
 
-    cmd="python test.py \
-      $system_options \
-      $calc_options_ref \
-      $additional_options \
-      --nbands $nbands \
-      --supercell $cell \
-      $opt > ${prefix}.log 2>&1"
+      cmd="python test.py \
+        $system_options \
+        $calc_options_ref \
+        $additional_options \
+        --nbands $nbands \
+        --supercell $cell \
+        $opt > ${prefix}.log 2>&1"
 
-    echo "Running: $prefix"
-    eval $cmd
+      echo "Running: $prefix"
+      eval $cmd
+    fi
   done
 done
 
