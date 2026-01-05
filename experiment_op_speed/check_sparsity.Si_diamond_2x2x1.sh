@@ -3,33 +3,35 @@
 # supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14)
 # supercell_sizes=(1 3 5 7 9 11 13 15 17 19)
 # supercell_sizes=(1 3 5 7 9 11) # 9 11 13 15 17 19)
-supercell_sizes=(1 3 5 7 9 11 13 15 17 19)
+supercell_sizes=(1 3 5 7 9 11 13)
 
-# TEST MgO
-system_name=MgO_1x1x2
+# TEST Si_diamond
+system_name=Si_diamond_2x2x1
 nocc=64
 system_options="--filepath ../data/systems/${system_name}.cif --pbc 1 1 1"
 
 use_cuda=1
 spacing=0.15
-pp_type=SG15
+# pp_type=SG15
+pp_type=NNLP
 unocc_ratio=1.05
 
 calc_options="--pp_type $pp_type --spacing $spacing --use_cuda $use_cuda"
 options=(
-    # "--fp DP"
+    "--fp DP"
     # "--fp SP"
     # "--fp SP --allow_tf32"
     # "--fp HP"
     # "--fp BF16"
 
-    "--fp DP --use_dense_proj"
-    "--fp SP --use_dense_proj"
-    "--fp SP --allow_tf32 --use_dense_proj"
-    # "--fp HP --use_dense_proj"
-    "--fp BF16 --use_dense_proj"
+    # "--fp DP --use_dense_proj"
+    # "--fp SP --use_dense_proj"
+    # "--fp SP --allow_tf32 --use_dense_proj"
+    # # "--fp HP --use_dense_proj"
+    # "--fp BF16 --use_dense_proj"
 )
-operation="projection kinetic local nonlocal tensordot"
+# operation="projection kinetic local nonlocal tensordot"
+operation="projection"
 
 for n in "${supercell_sizes[@]}"; do
   cell="1 1 ${n}"

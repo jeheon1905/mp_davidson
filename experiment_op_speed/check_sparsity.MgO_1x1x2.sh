@@ -17,19 +17,20 @@ unocc_ratio=1.05
 
 calc_options="--pp_type $pp_type --spacing $spacing --use_cuda $use_cuda"
 options=(
-    # "--fp DP"
+    "--fp DP"
     # "--fp SP"
     # "--fp SP --allow_tf32"
     # "--fp HP"
     # "--fp BF16"
 
-    "--fp DP --use_dense_proj"
-    "--fp SP --use_dense_proj"
-    "--fp SP --allow_tf32 --use_dense_proj"
-    # "--fp HP --use_dense_proj"
-    "--fp BF16 --use_dense_proj"
+    # "--fp DP --use_dense_proj"
+    # "--fp SP --use_dense_proj"
+    # "--fp SP --allow_tf32 --use_dense_proj"
+    # # "--fp HP --use_dense_proj"
+    # "--fp BF16 --use_dense_proj"
 )
-operation="projection kinetic local nonlocal tensordot"
+# operation="projection kinetic local nonlocal tensordot"
+operation="projection"
 
 for n in "${supercell_sizes[@]}"; do
   cell="1 1 ${n}"

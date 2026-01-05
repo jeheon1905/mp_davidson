@@ -121,7 +121,7 @@ python plot_breakdown.py \
 ```
 
 
-## Figure 3: performance enhancements as a function of system sizes
+## Figure 4: performance enhancements as a function of system sizes
 
 Plot performance enhancements of three different systems with x-axis of the number of atoms and y-axis of performance enhancements.
 

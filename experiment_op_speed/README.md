@@ -36,6 +36,15 @@ source ./test.operation.MgO_1x1x2.sh &> results/MgO_1x1x2.${DEVICE}.log
 source ./test.operation.Si_diamond_2x2x1.sh &> results/Si_diamond_2x2x1.${DEVICE}.log
 
 python print_table results/MgO_1x1x2.${DEVICE}.log
+
+# Check system size info (natoms, nbands, ngpts, non-zero ratio of KB projectors)
+source ./check_sparsity.CNT_6_0.sh &> results/CNT_6_0.sparsity.log
+source ./check_sparsity.MgO_1x1x2.sh &> results/MgO_1x1x2.sparsity.log
+source ./check_sparsity.Si_diamond_2x2x1.sh &> results/Si_diamond_2x2x1.sparsity.log
+grep "natoms" -A 2 results/*.log > system_info.log
+grep "* nbands   " results/*.log >> system_info.log
+grep "ngpts" results/*.log >> system_info.log
+grep "non-zero ratio" results/*.log >> system_info.log
 ```
 
 

@@ -118,7 +118,7 @@ def main(args: argparse.Namespace) -> None:
 
     # Make GOSPEL calculator
     calc = GOSPEL(
-        mixing={"what": "potential"},
+        mixing={"what": args.scf_mixing},
         print_energies=True,
         use_cuda=args.use_cuda,
         use_dense_kinetic=args.use_dense_kinetic,
@@ -379,6 +379,13 @@ if __name__ == "__main__":
         type=lambda x: np.inf if x.lower() == 'inf' else float(x),
         default=1e-4,
         help="SCF density tolerance (/electron); use 'inf' to disable",
+    )
+    parser.add_argument(
+        "--scf_mixing",
+        type=str,
+        default="potential",
+        choices=["density", "potential"],
+        help="scf mixing type (default: potential)",
     )
     parser.add_argument(
         "--fixed_convg_tol",

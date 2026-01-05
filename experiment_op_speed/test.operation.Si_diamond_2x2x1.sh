@@ -12,7 +12,8 @@ system_options="--filepath ../data/systems/${system_name}.cif --pbc 1 1 1"
 
 use_cuda=1
 spacing=0.15
-pp_type=SG15
+# pp_type=SG15
+pp_type=NNLP
 unocc_ratio=1.05
 
 calc_options="--pp_type $pp_type --spacing $spacing --use_cuda $use_cuda"
@@ -39,7 +40,8 @@ for n in "${supercell_sizes[@]}"; do
   for idx in "${!options[@]}"; do
     opt="${options[$idx]}"
 
-    cmd="python test_op_time.py $system_options --nbands $nbands --supercell $cell $opt \
+    cmd="python test_op_time.py $system_options $calc_options \
+	--nbands $nbands --supercell $cell $opt \
         --operation $operation"
 
     echo $cmd

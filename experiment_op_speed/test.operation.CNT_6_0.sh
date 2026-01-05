@@ -37,7 +37,8 @@ for n in "${supercell_sizes[@]}"; do
   for idx in "${!options[@]}"; do
     opt="${options[$idx]}"
 
-    cmd="python test_op_time.py $system_options --nbands $nbands --supercell $cell $opt \
+    cmd="python test_op_time.py $system_options $calc_options \
+	--nbands $nbands --supercell $cell $opt \
         --operation $operation"
 
     echo $cmd
