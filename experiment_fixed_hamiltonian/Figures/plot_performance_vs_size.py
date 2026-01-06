@@ -281,7 +281,7 @@ def plot_type1_speedup_by_gpu(
 
 def plot_type2_time_comparison(
     df, system_name, save_path=None, legend_path=None,
-    custom_font_config=None, figsize=(9, 6), ncol=4, show=True,
+    custom_font_config=None, figsize=(9, 6), ncol=4, show=True, log_scale=False,
 ):
     """Type 2: For a single system, x=natoms, y=time, legend=FP64/MP1* per GPU."""
     font_config = custom_font_config or CURRENT_FONT_CONFIG
@@ -328,6 +328,10 @@ def plot_type2_time_comparison(
 
     ax.set_xlabel("Number of atoms", fontsize=font_config["label"])
     ax.set_ylabel("Diag. time (sec)", fontsize=font_config["label"])
+
+    if log_scale:
+        ax.set_yscale('log')
+
     ax.grid(True, alpha=0.3, linestyle="-", linewidth=font_config["base"] / 20)
     ax.tick_params(axis="both", labelsize=font_config["tick"])
 
@@ -351,6 +355,7 @@ def plot_type2_time_comparison(
         fig_leg.tight_layout()
         fig_leg.savefig(legend_path, bbox_inches="tight")
         plt.close(fig_leg)
+
 
 def plot_type3_speedup_by_system(
     df, gpu_label, save_path=None, custom_font_config=None, figsize=(9, 6)
@@ -419,7 +424,8 @@ if __name__ == "__main__":
         # Type 2: Time comparison (FP64 vs MP1*) per GPU
         filename = f"./Figures_performance_vs_size/type2_time_{system}.svg"
         filename_legend = "./Figures_performance_vs_size/legend_box2.svg"
-        plot_type2_time_comparison(combined_df, system, filename, legend_path=filename_legend, figsize=figsize, show=show)
+        # plot_type2_time_comparison(combined_df, system, filename, legend_path=filename_legend, figsize=figsize, show=show)
+        plot_type2_time_comparison(combined_df, system, filename, legend_path=filename_legend, figsize=figsize, show=show, log_scale=True)
         print(f"Save legend box to {filename_legend}")
         print(f"Save plot to {filename}")
 

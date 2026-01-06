@@ -70,6 +70,9 @@ def get_git_commit(package_name: str) -> str:
                     .strip()
                 )
                 return f"{package_name}: {commit}"
+            except FileNotFoundError:
+                # git binary not available (e.g. SLURM batch environment)
+                return f"{package_name}: git not available"
             except subprocess.CalledProcessError:
                 return f"{package_name}: no git info (error)"
         next_dir = os.path.dirname(current)

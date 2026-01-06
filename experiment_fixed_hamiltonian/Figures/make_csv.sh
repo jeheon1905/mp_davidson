@@ -3,11 +3,9 @@
 supercell_sizes=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22)
 option_names=("MP_scheme1_BF164precond")
 system_list=("CNT_6_0" "MgO_1x1x2" "Si_diamond_2x2x1")
-gpu_info="A100"
-
 
 # Create results directory
-results_dir="csv_results_${gpu_info}"
+results_dir="csv_results_${GPU_DEVICE}"
 mkdir -p "${results_dir}"
 
 # Main processing loop
@@ -23,7 +21,7 @@ for system in "${system_list[@]}"; do
       cmd="python analyze_acc.py \
         --ref_log ../expt.${system}/1_1_${n}_DP.speed.log \
         --prb_log ../expt.${system}/1_1_${n}_${opt_name}.speed.log \
-        --csv csv_results_${gpu_info}/${system}.1_1_${n}.csv
+        --csv csv_results_${GPU_DEVICE}/${system}.1_1_${n}.csv
       "
       echo $cmd
       eval $cmd

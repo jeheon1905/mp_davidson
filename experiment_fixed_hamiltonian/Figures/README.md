@@ -127,6 +127,7 @@ Plot performance enhancements of three different systems with x-axis of the numb
 
 ```bash
 # Extract time breakdown from log files. (saved into .csv_results_A100/)
+GPU_DEVICE=A100
 source make_csv.sh
 python plot_performance_vs_size.py  # figures are saved into ./Figures_performance_vs_size
 
