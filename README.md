@@ -84,8 +84,9 @@ For more details on building structures, refer to [ASE Build](https://wiki.fysik
 
 
 ## Reproducibility
-You can reproduce the experiments ...
+Experiments can be reproduced by following the instructions in each directory:
 
-```bash
-bash configs/config.yaml  # TODO implement
-```
+- `./experiment_fixed_hamiltonian`
+- `./experiment_op_speed`
+- `./experiment_scf`
+
